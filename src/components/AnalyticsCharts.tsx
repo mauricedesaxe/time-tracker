@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  PieChart,
-  Pie,
-  Cell,
   BarChart,
   Bar,
   XAxis,
@@ -22,11 +19,6 @@ interface PieChartData {
   color: string;
   categoryId: string;
   hours: number;
-}
-
-interface WeeklyChartData {
-  week: string;
-  [categoryId: string]: string | number;
 }
 
 interface DailyChartData {
@@ -240,17 +232,6 @@ const stringToColor = (str: string) => {
   return colors[Math.abs(hash) % colors.length];
 };
 
-const COLORS = [
-  "#FF6384",
-  "#36A2EB",
-  "#FFCE56",
-  "#4BC0C0",
-  "#9966FF",
-  "#FF9F40",
-  "#FF6384",
-  "#C9CBCF",
-];
-
 // Extract work type from description
 const getWorkTypeFromDescription = (description: string): string => {
   if (!description || !description.trim()) return "unspecified";
@@ -312,7 +293,6 @@ const AnalyticsCharts = () => {
 
   // State for chart data
   const [currentWeekData, setCurrentWeekData] = useState<PieChartData[]>([]);
-  const [weeklyData, setWeeklyData] = useState<WeeklyChartData[]>([]);
   const [dailyData, setDailyData] = useState<DailyChartData[]>([]);
   const [workTypeData, setWorkTypeData] = useState<WorkTypeData[]>([]);
   const [workTypes, setWorkTypes] = useState<
@@ -399,29 +379,6 @@ const AnalyticsCharts = () => {
       weekData[weekStart][categoryId] =
         (weekData[weekStart][categoryId] || 0) + hours;
     });
-
-    // Convert to array format for charts
-    const weeklyChartData = Object.entries(weekData)
-      .map(([week, categoryData]) => {
-        const dataPoint: WeeklyChartData = { week };
-
-        // Add hours for each category
-        Object.entries(categoryData).forEach(([categoryId, hours]) => {
-          const category = getCategory(categoryId);
-          dataPoint[categoryId] = hours;
-          dataPoint[`${categoryId}_name`] = category?.name || "Uncategorized";
-        });
-
-        return dataPoint;
-      })
-      .sort((a, b) => {
-        // Sort by date
-        const dateA = new Date(a.week);
-        const dateB = new Date(b.week);
-        return dateA.getTime() - dateB.getTime();
-      });
-
-    setWeeklyData(weeklyChartData);
 
     // Process daily data (past 6 days)
     const sixDaysAgo = new Date();
