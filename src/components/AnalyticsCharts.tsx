@@ -62,6 +62,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "meeting",
     name: "Meeting",
+    color: "#4E79A7",
     terms: [
       "meet",
       "call",
@@ -79,6 +80,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "coding",
     name: "Coding",
+    color: "#F28E2B",
     terms: [
       "code",
       "programming",
@@ -96,6 +98,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "content",
     name: "Content",
+    color: "#E15759",
     terms: [
       "write",
       "blog",
@@ -113,6 +116,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "communication",
     name: "Communication",
+    color: "#76B7B2",
     terms: [
       "email",
       "correspondence",
@@ -128,6 +132,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "design",
     name: "Design",
+    color: "#59A14F",
     terms: [
       "design",
       "ui",
@@ -143,6 +148,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "research",
     name: "Research",
+    color: "#EDC948",
     terms: [
       "research",
       "study",
@@ -158,6 +164,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "planning",
     name: "Planning",
+    color: "#B07AA1",
     terms: [
       "plan",
       "strategy",
@@ -172,6 +179,7 @@ const WORK_TYPE_DEFINITIONS = [
   {
     id: "admin",
     name: "Administration",
+    color: "#FF9DA7",
     terms: [
       "admin",
       "manage",
