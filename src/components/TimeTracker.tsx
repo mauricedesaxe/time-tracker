@@ -221,6 +221,20 @@ const TimeTracker = () => {
     setEditingEntry(null);
   };
 
+  // Handle description input key press
+  const handleDescriptionKeyPress = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (currentEntry) {
+        stopTimer();
+      } else {
+        startTimer();
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Timer input */}
@@ -231,6 +245,7 @@ const TimeTracker = () => {
           className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           value={description}
           onChange={(e) => updateDescription(e.target.value)}
+          onKeyPress={handleDescriptionKeyPress}
         />
 
         <div className="flex items-center space-x-4">
