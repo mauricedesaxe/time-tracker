@@ -6,6 +6,19 @@ import {
 } from "../store/timeTrackerStore";
 
 /**
+ * Verify the invariant that only a single time entry can be running at once
+ * Throws an error if multiple running entries are found
+ */
+function validateSingleRunningEntry(entries: TimeEntry[]) {
+  const runningEntries = entries.filter((entry) => !entry.endTime);
+  if (runningEntries.length > 1) {
+    throw new Error(
+      `Invariant violation: Found ${runningEntries.length} running time entries. Only one entry can be running at a time.`
+    );
+  }
+}
+
+/**
  * Convert Unix time duration (in milliseconds) to human readable string
  * @param {number} milliseconds - Duration in milliseconds
  * @param {Object} options - Formatting options
@@ -96,6 +109,7 @@ const TimeTracker = () => {
     deleteTimeEntry,
     getCategories,
     getCategory,
+    getTimeEntries,
   } = useTimeTrackerStore();
 
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
@@ -116,6 +130,11 @@ const TimeTracker = () => {
 
   // Get all time entries, sorted by start time (most recent first)
   const sortedEntries = getTimeEntriesSorted("startTime", true);
+
+  // Validate the invariant that only one entry can be running at a time
+  useEffect(() => {
+    validateSingleRunningEntry(sortedEntries);
+  }, [sortedEntries]);
 
   // Get all categories
   const categories = getCategories();
@@ -172,6 +191,15 @@ const TimeTracker = () => {
 
   // Start a new timer
   const startTimer = () => {
+    // Verify no running entries exist before starting a new one
+    const entries = getTimeEntries();
+    const runningEntries = entries.filter((entry) => !entry.endTime);
+    if (runningEntries.length > 0) {
+      throw new Error(
+        "Cannot start a new timer while another timer is already running."
+      );
+    }
+
     const id = `te_${Date.now()}`;
     const startTime = Date.now();
 
