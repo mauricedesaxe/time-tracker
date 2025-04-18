@@ -394,7 +394,7 @@ const TimeTracker = () => {
             </div>
             {currentEntry && (
               <div className="text-lg font-mono text-blue-600 dark:text-blue-400">
-                {timeDisplay}
+                Elapsed: {timeDisplay}
               </div>
             )}
           </div>
