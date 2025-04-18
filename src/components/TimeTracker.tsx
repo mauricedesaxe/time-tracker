@@ -728,17 +728,34 @@ const TimeTracker = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Category
                 </label>
-                <select
-                  value={modalCategoryId}
-                  onChange={(e) => setModalCategoryId(e.target.value)}
-                  className="w-full px-3 py-2 border dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                >
+                <fieldset className="space-y-2 mt-1" role="radiogroup">
+                  <legend className="sr-only">Select a category</legend>
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
+                    <div key={category.id} className="flex items-center">
+                      <input
+                        id={`category-${category.id}`}
+                        type="radio"
+                        name="modalCategory"
+                        value={category.id}
+                        checked={modalCategoryId === category.id}
+                        onChange={() => setModalCategoryId(category.id)}
+                        className="h-4 w-4 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                        aria-checked={modalCategoryId === category.id}
+                      />
+                      <label
+                        htmlFor={`category-${category.id}`}
+                        className="ml-2 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer w-full py-1.5 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <span
+                          className="h-3 w-3 rounded-full inline-block"
+                          style={{ backgroundColor: category.color }}
+                          aria-hidden="true"
+                        ></span>
+                        {category.name}
+                      </label>
+                    </div>
                   ))}
-                </select>
+                </fieldset>
               </div>
 
               <div className="flex justify-end space-x-3 pt-2">
