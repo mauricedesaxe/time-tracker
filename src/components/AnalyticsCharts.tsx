@@ -14,6 +14,35 @@ import {
 } from "recharts";
 import { useTimeTrackerStore } from "../store/timeTrackerStore";
 
+// Define interfaces for chart data
+interface PieChartData {
+  name: string;
+  value: number;
+  color: string;
+  categoryId: string;
+  hours: number;
+}
+
+interface WeeklyChartData {
+  week: string;
+  [categoryId: string]: string | number;
+}
+
+interface DailyChartData {
+  day: string;
+  total: number;
+  [categoryId: string]: string | number;
+}
+
+interface WorkTypeData {
+  category: string;
+  categoryId: string;
+  regular: number;
+  content: number;
+  meeting: number;
+  coding: number;
+}
+
 // Helper functions to process data
 const hoursFromMilliseconds = (ms: number) =>
   Number((ms / (1000 * 60 * 60)).toFixed(1));
@@ -65,10 +94,10 @@ const AnalyticsCharts = () => {
   const categories = getCategories();
 
   // State for chart data
-  const [currentWeekData, setCurrentWeekData] = useState<any[]>([]);
-  const [weeklyData, setWeeklyData] = useState<any[]>([]);
-  const [dailyData, setDailyData] = useState<any[]>([]);
-  const [workTypeData, setWorkTypeData] = useState<any[]>([]);
+  const [currentWeekData, setCurrentWeekData] = useState<PieChartData[]>([]);
+  const [weeklyData, setWeeklyData] = useState<WeeklyChartData[]>([]);
+  const [dailyData, setDailyData] = useState<DailyChartData[]>([]);
+  const [workTypeData, setWorkTypeData] = useState<WorkTypeData[]>([]);
   const [totalHours, setTotalHours] = useState<number>(0);
 
   // Process data for charts when entries change
@@ -154,7 +183,7 @@ const AnalyticsCharts = () => {
     // Convert to array format for charts
     const weeklyChartData = Object.entries(weekData)
       .map(([week, categoryData]) => {
-        const dataPoint: any = { week };
+        const dataPoint: WeeklyChartData = { week };
 
         // Add hours for each category
         Object.entries(categoryData).forEach(([categoryId, hours]) => {
@@ -214,18 +243,16 @@ const AnalyticsCharts = () => {
     // Convert to array format for charts
     const dailyChartData = Object.entries(dayData)
       .map(([day, categoryData]) => {
-        const dataPoint: any = { day };
-        let total = 0;
+        const dataPoint: DailyChartData = { day, total: 0 };
 
         // Add hours for each category
         Object.entries(categoryData).forEach(([categoryId, hours]) => {
           const category = getCategory(categoryId);
           dataPoint[categoryId] = hours;
           dataPoint[`${categoryId}_name`] = category?.name || "Uncategorized";
-          total += hours;
+          dataPoint.total += hours;
         });
 
-        dataPoint.total = total;
         return dataPoint;
       })
       .sort((a, b) => {
@@ -283,13 +310,16 @@ const AnalyticsCharts = () => {
 
     // Format data for stacked chart
     const workTypeChartData = Object.entries(workTypeHours)
-      .filter(([_, data]) => Object.values(data).some((hours) => hours > 0))
+      .filter(([, data]) => Object.values(data).some((hours) => hours > 0))
       .map(([categoryId, typeData]) => {
         const category = getCategory(categoryId);
         return {
           category: category?.name || "Uncategorized",
           categoryId,
-          ...typeData,
+          regular: typeData.regular || 0,
+          content: typeData.content || 0,
+          meeting: typeData.meeting || 0,
+          coding: typeData.coding || 0,
         };
       });
 
@@ -325,7 +355,7 @@ const AnalyticsCharts = () => {
               outerRadius={80}
               dataKey="value"
               nameKey="name"
-              label={({ name, value, percent }) => `${value.toFixed(1)}h`}
+              label={({ value }) => `${value.toFixed(1)}h`}
             >
               {currentWeekData.map((entry, index) => (
                 <Cell
