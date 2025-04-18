@@ -30,6 +30,8 @@ const TimeTracker = () => {
   const store = useStore();
   const [description, setDescription] = useState("");
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
+  const [timeDisplay, setTimeDisplay] = useState("");
+  const [timerInterval, setTimerInterval] = useState<number | null>(null);
 
   // Get all time entries, sorted by start time (most recent first)
   const timeEntries = useRows(store, "timeEntries", undefined, {
@@ -39,6 +41,17 @@ const TimeTracker = () => {
 
   // Create a new time entry
   const createTimeEntry = useCreateRow(store, "timeEntries");
+
+  // Check for running entries when component mounts
+  useEffect(() => {
+    const runningEntry = timeEntries.find((entry) => !entry.endTime);
+    if (runningEntry && !currentEntry) {
+      setCurrentEntry(runningEntry.id);
+      setDescription(runningEntry.description);
+      startTimerInterval(runningEntry.startTime);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeEntries]);
 
   // Update description when current entry changes
   useEffect(() => {
@@ -51,25 +64,64 @@ const TimeTracker = () => {
     }
   }, [currentEntry, store]);
 
+  // Clean up timer interval on unmount
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [timerInterval]);
+
+  // Start timer interval for displaying elapsed time
+  const startTimerInterval = (startTime: number) => {
+    // Clear any existing interval
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+
+    // Create new interval that updates every second
+    const interval = window.setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      setTimeDisplay(formatTime(elapsed));
+    }, 1000);
+
+    // Set initial display immediately
+    setTimeDisplay(formatTime(Date.now() - startTime));
+
+    // Store interval ID for cleanup
+    setTimerInterval(interval);
+  };
+
   // Start a new timer
   const startTimer = () => {
     if (description.trim() === "") return;
 
     const id = `te_${Date.now()}`;
+    const startTime = Date.now();
+
     createTimeEntry(id, {
       id,
       description,
-      startTime: Date.now(),
+      startTime,
       projectId: "p1", // Use default project for now
     });
 
     setCurrentEntry(id);
+    startTimerInterval(startTime);
   };
 
   // Stop the current timer
   const stopTimer = () => {
     if (!currentEntry) return;
 
+    // Clear timer interval
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+
+    // Update entry with end time
     store.setRow("timeEntries", currentEntry, {
       ...store.getRow("timeEntries", currentEntry),
       endTime: Date.now(),
@@ -77,6 +129,19 @@ const TimeTracker = () => {
 
     setCurrentEntry(null);
     setDescription("");
+    setTimeDisplay("");
+  };
+
+  // Resume a previously running entry
+  const resumeTimer = (entryId: string) => {
+    // If already tracking, stop the current one first
+    if (currentEntry) {
+      stopTimer();
+    }
+
+    const entry = store.getRow("timeEntries", entryId) as unknown as TimeEntry;
+    setCurrentEntry(entryId);
+    startTimerInterval(entry.startTime);
   };
 
   // Update description of current entry
@@ -122,16 +187,7 @@ const TimeTracker = () => {
           )}
 
           {currentEntry && (
-            <div className="text-lg font-mono">
-              {formatTime(
-                Date.now() -
-                  (store.getCell(
-                    "timeEntries",
-                    currentEntry,
-                    "startTime"
-                  ) as number)
-              )}
-            </div>
+            <div className="text-lg font-mono">{timeDisplay}</div>
           )}
         </div>
       </div>
@@ -149,12 +205,13 @@ const TimeTracker = () => {
             {timeEntries.map((entry) => {
               const { id, description, startTime, endTime } = entry;
               const isRunning = !endTime;
+              const isCurrentEntry = id === currentEntry;
 
               return (
                 <div key={id} className="p-4 border rounded-lg bg-gray-50">
                   <div className="flex justify-between">
                     <h3 className="font-medium">{description}</h3>
-                    <div className="flex items-center">
+                    <div className="flex items-center space-x-2">
                       {isRunning ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           Running
@@ -163,6 +220,15 @@ const TimeTracker = () => {
                         <span className="text-gray-500">
                           {formatTime(getDuration(startTime, endTime))}
                         </span>
+                      )}
+
+                      {isRunning && !isCurrentEntry && (
+                        <button
+                          onClick={() => resumeTimer(id)}
+                          className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Resume
+                        </button>
                       )}
                     </div>
                   </div>
