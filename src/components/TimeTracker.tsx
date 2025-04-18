@@ -192,6 +192,13 @@ const TimeTracker = () => {
 
     setCurrentEntry(id);
     startTimerInterval(startTime);
+
+    const descriptionInput = document.querySelector(
+      'input[placeholder="What are you working on?"]'
+    );
+    if (descriptionInput) {
+      (descriptionInput as HTMLInputElement).focus();
+    }
   };
 
   // Stop the current timer
