@@ -493,6 +493,9 @@ const TimeTracker = () => {
                 className="flex items-center px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
               >
                 Start Timer
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-600 dark:bg-blue-700 rounded-md opacity-80">
+                  Space
+                </span>
               </button>
             ) : (
               <button
@@ -500,6 +503,9 @@ const TimeTracker = () => {
                 className="flex items-center px-3 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50"
               >
                 Stop Timer
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-red-600 dark:bg-red-700 rounded-md opacity-80">
+                  Space
+                </span>
               </button>
             )}
           </div>
