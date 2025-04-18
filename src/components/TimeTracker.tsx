@@ -98,7 +98,6 @@ const TimeTracker = () => {
     getCategory,
   } = useTimeTrackerStore();
 
-  const [description, setDescription] = useState("");
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
   const [timeDisplay, setTimeDisplay] = useState("");
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
@@ -108,6 +107,12 @@ const TimeTracker = () => {
   const [editEndTime, setEditEndTime] = useState("");
   const [categoryId, setCategoryId] = useState<string>("c1"); // Default to first category
   const [editCategoryId, setEditCategoryId] = useState<string>("");
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalDescription, setModalDescription] = useState("");
+  const [modalCategoryId, setModalCategoryId] = useState<string>("c1");
+  const [entryToSave, setEntryToSave] = useState<string | null>(null);
 
   // Get all time entries, sorted by start time (most recent first)
   const sortedEntries = getTimeEntriesSorted("startTime", true);
@@ -120,7 +125,6 @@ const TimeTracker = () => {
     const runningEntry = sortedEntries.find((entry) => !entry.endTime);
     if (runningEntry && !currentEntry) {
       setCurrentEntry(runningEntry.id);
-      setDescription(runningEntry.description);
       setCategoryId(runningEntry.categoryId || "c1");
       startTimerInterval(runningEntry.startTime);
     }
@@ -132,7 +136,6 @@ const TimeTracker = () => {
     if (currentEntry) {
       const entry = getTimeEntry(currentEntry);
       if (entry) {
-        setDescription(entry.description);
         setCategoryId(entry.categoryId || "c1");
       }
     }
@@ -174,27 +177,19 @@ const TimeTracker = () => {
 
     addTimeEntry({
       id,
-      description,
+      description: "", // Start with empty description
       startTime,
       projectId: "p1", // Use default project for now
-      categoryId,
+      categoryId, // Use currently selected category
     });
 
     setCurrentEntry(id);
     startTimerInterval(startTime);
-
-    const descriptionInput = document.querySelector(
-      'input[placeholder="What are you working on?"]'
-    );
-    if (descriptionInput) {
-      (descriptionInput as HTMLInputElement).focus();
-    }
   };
 
-  // Stop the current timer
+  // Stop the current timer and open modal
   const stopTimer = () => {
     if (!currentEntry) return;
-    if (description.trim() === "") return;
 
     // Clear timer interval
     if (timerInterval) {
@@ -202,12 +197,57 @@ const TimeTracker = () => {
       setTimerInterval(null);
     }
 
-    // Update entry with end time
-    updateTimeEntry(currentEntry, { endTime: Date.now() });
+    // Get current entry data to pre-fill modal
+    const entry = getTimeEntry(currentEntry);
+    if (entry) {
+      setModalDescription(entry.description || "");
+      setModalCategoryId(entry.categoryId || "c1");
+      setEntryToSave(currentEntry);
 
+      // Open the modal
+      setIsModalOpen(true);
+    }
+  };
+
+  // Save the entry after modal confirmation
+  const saveEntryFromModal = () => {
+    if (!entryToSave) return;
+    if (modalDescription.trim() === "") {
+      alert("Please enter a description");
+      return;
+    }
+
+    // Update entry with description, category and end time
+    updateTimeEntry(entryToSave, {
+      description: modalDescription,
+      categoryId: modalCategoryId,
+      endTime: Date.now(),
+    });
+
+    // Reset states
     setCurrentEntry(null);
-    setDescription("");
     setTimeDisplay("");
+    setEntryToSave(null);
+    setIsModalOpen(false);
+  };
+
+  // Cancel modal without saving
+  const cancelModal = () => {
+    if (entryToSave && window.confirm("Do you want to keep tracking time?")) {
+      // Resume tracking
+      setCurrentEntry(entryToSave);
+      const entry = getTimeEntry(entryToSave);
+      if (entry) {
+        startTimerInterval(entry.startTime);
+      }
+    } else if (entryToSave) {
+      // Delete the entry
+      deleteTimeEntry(entryToSave);
+      setCurrentEntry(null);
+    }
+
+    setEntryToSave(null);
+    setIsModalOpen(false);
   };
 
   // Resume a previously running entry
@@ -221,24 +261,6 @@ const TimeTracker = () => {
     if (entry) {
       setCurrentEntry(entryId);
       startTimerInterval(entry.startTime);
-    }
-  };
-
-  // Update description of current entry
-  const updateDescription = (newDescription: string) => {
-    setDescription(newDescription);
-
-    if (currentEntry) {
-      updateTimeEntry(currentEntry, { description: newDescription });
-    }
-  };
-
-  // Update category of current entry
-  const updateCategory = (newCategoryId: string) => {
-    setCategoryId(newCategoryId);
-
-    if (currentEntry) {
-      updateTimeEntry(currentEntry, { categoryId: newCategoryId });
     }
   };
 
@@ -306,26 +328,16 @@ const TimeTracker = () => {
     setEditingEntry(null);
   };
 
-  // Handle description input key press
-  const handleDescriptionKeyPress = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (currentEntry) {
-        stopTimer();
-      } else {
-        startTimer();
-      }
-    }
-  };
-
   // Delete an entry
   const handleDeleteEntry = (id: string) => {
     if (window.confirm("Are you sure you want to delete this entry?")) {
       // If deleting the current entry, stop the timer first
       if (id === currentEntry) {
-        stopTimer();
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          setTimerInterval(null);
+        }
+        setCurrentEntry(null);
       }
       deleteTimeEntry(id);
     }
@@ -352,34 +364,6 @@ const TimeTracker = () => {
 
   return (
     <div className="space-y-6">
-      {/* Timer input */}
-      <div className="flex flex-col space-y-4">
-        <input
-          type="text"
-          placeholder="What are you working on?"
-          className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          value={description}
-          onChange={(e) => updateDescription(e.target.value)}
-          onKeyPress={handleDescriptionKeyPress}
-        />
-
-        {/* Category selector */}
-        <div className="flex space-x-2">
-          <label className="text-sm text-gray-600">Category:</label>
-          <select
-            value={categoryId}
-            onChange={(e) => updateCategory(e.target.value)}
-            className="text-sm border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       {/* Time entries list */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
@@ -428,7 +412,6 @@ const TimeTracker = () => {
             ) : (
               <button
                 onClick={stopTimer}
-                disabled={description.trim() === ""}
                 className="flex items-center px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
               >
                 Stop Timer
@@ -667,6 +650,66 @@ const TimeTracker = () => {
           </>
         )}
       </div>
+
+      {/* Modal for task description */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">
+              What did you work on?
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={modalDescription}
+                  onChange={(e) => setModalDescription(e.target.value)}
+                  placeholder="What did you work on?"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category
+                </label>
+                <select
+                  value={modalCategoryId}
+                  onChange={(e) => setModalCategoryId(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  onClick={cancelModal}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveEntryFromModal}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                  disabled={modalDescription.trim() === ""}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

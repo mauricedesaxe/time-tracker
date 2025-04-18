@@ -13,9 +13,7 @@ function App() {
       <div className="mx-auto flex w-full max-w-7xl items-start gap-x-8 px-4 py-10 sm:px-6 lg:px-8">
         <main className="flex-1">
           <div className="relative px-4 py-10 bg-white shadow-lg rounded-lg sm:rounded-3xl sm:p-8 min-w-xs">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">
-              Simple Time Tracker
-            </h1>
+            <h1 className="sr-only">Simple Time Tracker</h1>
             <TimeTracker />
           </div>
         </main>
