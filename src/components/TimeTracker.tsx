@@ -95,8 +95,6 @@ const TimeTracker = () => {
 
   // Start a new timer
   const startTimer = () => {
-    if (description.trim() === "") return;
-
     const id = `te_${Date.now()}`;
     const startTime = Date.now();
 
@@ -172,7 +170,6 @@ const TimeTracker = () => {
           {!currentEntry ? (
             <button
               onClick={startTimer}
-              disabled={description.trim() === ""}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
             >
               Start Timer
@@ -180,7 +177,8 @@ const TimeTracker = () => {
           ) : (
             <button
               onClick={stopTimer}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+              disabled={description.trim() === ""}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50"
             >
               Stop Timer
             </button>
