@@ -580,64 +580,6 @@ const AnalyticsCharts = () => {
 
   return (
     <div className="space-y-6">
-      {/* Current Week Summary */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-3">Current Week</h2>
-        <p className="text-gray-600 font-medium mb-4">
-          Total: {totalHours.toFixed(1)}h
-        </p>
-
-        <ResponsiveContainer width="100%" height={200}>
-          <PieChart>
-            <Pie
-              data={currentWeekData}
-              cx="50%"
-              cy="50%"
-              innerRadius={0}
-              outerRadius={80}
-              dataKey="value"
-              nameKey="name"
-              label={({ value }) => `${value.toFixed(1)}h`}
-            >
-              {currentWeekData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={entry.color || COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value: number) => [
-                `${value.toFixed(1)}h (${((value / totalHours) * 100).toFixed(
-                  1
-                )}%)`,
-                "Hours",
-              ]}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-
-        <div className="mt-2">
-          {currentWeekData.map((entry, index) => (
-            <div
-              key={`legend-${index}`}
-              className="flex items-center text-sm mb-1"
-            >
-              <div
-                className="w-3 h-3 rounded-full mr-2"
-                style={{
-                  backgroundColor: entry.color || COLORS[index % COLORS.length],
-                }}
-              ></div>
-              <span className="font-medium">{entry.name}</span>
-              <span className="ml-2 text-gray-500">
-                ({entry.hours.toFixed(1)}h)
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Daily Chart with Summary Legend */}
       <div className="bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-lg font-medium mb-3">
