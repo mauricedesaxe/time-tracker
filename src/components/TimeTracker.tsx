@@ -564,9 +564,12 @@ const TimeTracker = () => {
                   ? `${startTimeStr} - running`
                   : `${startTimeStr} - ${endTimeStr}`;
 
-                const durationMinutes = isRunning
-                  ? Math.round((Date.now() - startTime) / 60000)
-                  : Math.round((endTime! - startTime) / 60000);
+                const durationMilliseconds = isRunning
+                  ? Date.now() - startTime
+                  : endTime! - startTime;
+                const formattedDuration = formatDuration(durationMilliseconds, {
+                  round: true,
+                });
 
                 return isEditing ? (
                   <div
@@ -671,7 +674,7 @@ const TimeTracker = () => {
                           strokeLinecap="round"
                         />
                       </svg>
-                      <span className="font-medium">{durationMinutes} min</span>
+                      <span className="font-medium">{formattedDuration}</span>
                       <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                         ( {timeDisplay} )
                       </span>
