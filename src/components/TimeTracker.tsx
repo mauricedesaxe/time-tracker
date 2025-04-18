@@ -420,13 +420,6 @@ const TimeTracker = () => {
           </div>
         </div>
 
-        <div className="text-sm mb-4">
-          Showing tracked time in{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            All categories
-          </a>
-        </div>
-
         {sortedEntries.length === 0 ? (
           <p className="text-gray-500">
             No time entries yet. Start your first timer!

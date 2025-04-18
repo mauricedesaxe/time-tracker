@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import TimeTracker from "./components/TimeTracker";
 import { initTimeTrackerState } from "./store/timeTrackerStore";
 import "./App.css";
+import CategoryManager from "./components/CategoryManager";
 
 function App() {
   useEffect(() => {
@@ -15,6 +16,7 @@ function App() {
           <div className="relative px-4 py-10 bg-white shadow-lg rounded-lg sm:rounded-3xl sm:p-8 min-w-xs">
             <h1 className="sr-only">Simple Time Tracker</h1>
             <TimeTracker />
+            <CategoryManager />
           </div>
         </main>
 
