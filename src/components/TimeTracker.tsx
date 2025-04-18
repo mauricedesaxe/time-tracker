@@ -3,18 +3,82 @@ import { useStore } from "../store/StoreContext";
 import { TimeEntry } from "../store/timeTrackerStore";
 import { useRows, useCreateRow } from "../hooks/useStore";
 
-// Format time in HH:MM:SS
-const formatTime = (time: number): string => {
-  const seconds = Math.floor((time / 1000) % 60);
-  const minutes = Math.floor((time / (1000 * 60)) % 60);
-  const hours = Math.floor((time / (1000 * 60 * 60)) % 24);
+/**
+ * Convert Unix time duration (in milliseconds) to human readable string
+ * @param {number} milliseconds - Duration in milliseconds
+ * @param {Object} options - Formatting options
+ * @param {boolean} options.short - Use short form (e.g. "2d 5h" instead of "2 days 5 hours")
+ * @param {boolean} options.round - Round to most significant unit
+ * @param {number} options.maxUnits - Maximum number of units to display (default: 2)
+ * @returns {string} Human readable duration string
+ */
+function formatDuration(
+  milliseconds: number,
+  options: { short?: boolean; round?: boolean; maxUnits?: number } = {}
+) {
+  // Handle edge cases
+  if (milliseconds === 0) return options.short ? "0s" : "0 seconds";
+  if (!Number.isFinite(milliseconds) || isNaN(milliseconds))
+    return "Invalid duration";
 
-  return [
-    hours.toString().padStart(2, "0"),
-    minutes.toString().padStart(2, "0"),
-    seconds.toString().padStart(2, "0"),
-  ].join(":");
-};
+  const seconds = milliseconds / 1000;
+
+  // Default options
+  const short = options.short || false;
+  const round = options.round || false;
+  const maxUnits = options.maxUnits || 2;
+
+  // Define time units in seconds
+  const units = [
+    { name: "year", short: "y", seconds: 31536000 },
+    { name: "month", short: "mo", seconds: 2592000 },
+    { name: "week", short: "w", seconds: 604800 },
+    { name: "day", short: "d", seconds: 86400 },
+    { name: "hour", short: "h", seconds: 3600 },
+    { name: "minute", short: "m", seconds: 60 },
+    { name: "second", short: "s", seconds: 1 },
+  ];
+
+  // If rounding to significant unit
+  if (round) {
+    for (const unit of units) {
+      if (seconds >= unit.seconds) {
+        const value = Math.round(seconds / unit.seconds);
+        const name = value === 1 ? unit.name : unit.name + "s";
+        return short ? `${value}${unit.short}` : `${value} ${name}`;
+      }
+    }
+  }
+
+  let remainingSeconds = Math.abs(seconds);
+  const parts = [];
+
+  // Break down seconds into different units
+  for (const unit of units) {
+    if (remainingSeconds >= unit.seconds) {
+      const value = Math.floor(remainingSeconds / unit.seconds);
+      remainingSeconds %= unit.seconds;
+
+      if (short) {
+        parts.push(`${value}${unit.short}`);
+      } else {
+        const name = value === 1 ? unit.name : unit.name + "s";
+        parts.push(`${value} ${name}`);
+      }
+
+      // Stop if we've reached maximum number of units
+      if (parts.length >= maxUnits) break;
+    }
+  }
+
+  // If no parts, it's less than 1 second
+  if (parts.length === 0) {
+    return short ? "< 1s" : "less than 1 second";
+  }
+
+  // Join the parts with appropriate separator
+  return short ? parts.join(" ") : parts.join(", ");
+}
 
 // Format date in readable format
 const formatDate = (timestamp: number): string => {
@@ -87,11 +151,11 @@ const TimeTracker = () => {
     // Create new interval that updates every second
     const interval = window.setInterval(() => {
       const elapsed = Date.now() - startTime;
-      setTimeDisplay(formatTime(elapsed));
+      setTimeDisplay(formatDuration(elapsed));
     }, 1000);
 
     // Set initial display immediately
-    setTimeDisplay(formatTime(Date.now() - startTime));
+    setTimeDisplay(formatDuration(Date.now() - startTime));
 
     // Store interval ID for cleanup
     setTimerInterval(interval);
@@ -349,7 +413,7 @@ const TimeTracker = () => {
                             </span>
                           ) : (
                             <span className="text-gray-500">
-                              {formatTime(getDuration(startTime, endTime))}
+                              {formatDuration(getDuration(startTime, endTime))}
                             </span>
                           )}
 
