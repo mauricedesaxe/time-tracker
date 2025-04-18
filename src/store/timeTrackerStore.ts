@@ -22,6 +22,7 @@ interface TimeTrackerState {
   // Actions
   addTimeEntry: (entry: TimeEntry) => void;
   updateTimeEntry: (id: string, entry: Partial<TimeEntry>) => void;
+  deleteTimeEntry: (id: string) => void;
   getTimeEntries: () => TimeEntry[];
   getTimeEntriesSorted: (
     sortKey: keyof TimeEntry,
@@ -52,6 +53,13 @@ export const useTimeTrackerStore = create<TimeTrackerState>()(
             [id]: { ...state.timeEntries[id], ...entry },
           },
         })),
+
+      deleteTimeEntry: (id) =>
+        set((state) => {
+          const newTimeEntries = { ...state.timeEntries };
+          delete newTimeEntries[id];
+          return { timeEntries: newTimeEntries };
+        }),
 
       getTimeEntries: () => {
         const state = get();

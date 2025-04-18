@@ -89,8 +89,13 @@ const getDuration = (start: number, end: number): number => {
 };
 
 const TimeTracker = () => {
-  const { getTimeEntriesSorted, addTimeEntry, updateTimeEntry, getTimeEntry } =
-    useTimeTrackerStore();
+  const {
+    getTimeEntriesSorted,
+    addTimeEntry,
+    updateTimeEntry,
+    getTimeEntry,
+    deleteTimeEntry,
+  } = useTimeTrackerStore();
 
   const [description, setDescription] = useState("");
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
@@ -285,6 +290,17 @@ const TimeTracker = () => {
     }
   };
 
+  // Delete an entry
+  const handleDeleteEntry = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this entry?")) {
+      // If deleting the current entry, stop the timer first
+      if (id === currentEntry) {
+        stopTimer();
+      }
+      deleteTimeEntry(id);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Timer input */}
@@ -420,6 +436,15 @@ const TimeTracker = () => {
                               Edit
                             </button>
                           )}
+
+                          <button
+                            onClick={() => handleDeleteEntry(id)}
+                            className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                            aria-label="Delete entry"
+                            title="Delete entry"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                       <div className="mt-1 text-sm text-gray-500">
