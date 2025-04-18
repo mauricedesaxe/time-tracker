@@ -17,7 +17,7 @@ export const createTimeTrackerStore = () => {
       id: { type: "string" },
       description: { type: "string" },
       startTime: { type: "number" },
-      endTime: { type: "number", default: 0 },
+      endTime: { type: "number" },
       projectId: { type: "string", default: "" },
     },
     projects: {

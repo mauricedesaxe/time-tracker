@@ -193,21 +193,31 @@ const TimeTracker = () => {
     if (!editingEntry) return;
 
     const startTimeMs = new Date(editStartTime).getTime();
-    const endTimeMs = editEndTime ? new Date(editEndTime).getTime() : undefined;
 
-    // Validate times
-    if (endTimeMs && startTimeMs >= endTimeMs) {
-      alert("End time must be after start time");
-      return;
-    }
-
-    store.setRow("timeEntries", editingEntry, {
-      ...store.getRow("timeEntries", editingEntry),
+    // Handle empty end time case properly
+    const updatedEntry = {
+      ...(store.getRow("timeEntries", editingEntry) as unknown as TimeEntry),
       description: editDescription,
       startTime: startTimeMs,
-      ...(endTimeMs && { endTime: endTimeMs }),
-    });
+    };
 
+    // Only set endTime if editEndTime has a value
+    if (editEndTime) {
+      const endTimeMs = new Date(editEndTime).getTime();
+
+      // Validate times
+      if (startTimeMs >= endTimeMs) {
+        alert("End time must be after start time");
+        return;
+      }
+
+      updatedEntry.endTime = endTimeMs;
+    } else {
+      // Explicitly remove endTime if the field is empty
+      delete updatedEntry.endTime;
+    }
+
+    store.setRow("timeEntries", editingEntry, updatedEntry);
     setEditingEntry(null);
   };
 
