@@ -638,11 +638,39 @@ const AnalyticsCharts = () => {
         </div>
       </div>
 
-      {/* Daily Chart */}
+      {/* Daily Chart with Summary Legend */}
       <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">
+        <h2 className="text-lg font-medium mb-3">
           Time Tracked by Category (Past 6 Days)
         </h2>
+        <p className="text-gray-600 font-medium mb-4">
+          This Week Total: {totalHours.toFixed(1)}h
+        </p>
+
+        {/* Category Summary Legend */}
+        <div className="mb-6 grid grid-cols-2 md:grid-cols-3 gap-2">
+          {currentWeekData.map((entry, index) => (
+            <div
+              key={`legend-${index}`}
+              className="flex items-center text-sm p-2 rounded-md"
+              style={{
+                backgroundColor: `${entry.color}15`,
+                borderLeft: `3px solid ${entry.color}`,
+              }}
+            >
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{
+                  backgroundColor: entry.color,
+                }}
+              ></div>
+              <span className="font-medium">{entry.name}</span>
+              <span className="ml-2 text-gray-500">
+                ({entry.hours.toFixed(1)}h)
+              </span>
+            </div>
+          ))}
+        </div>
 
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={dailyData}>
@@ -663,13 +691,13 @@ const AnalyticsCharts = () => {
               }}
             />
             <Legend />
-            {categories.map((category, index) => (
+            {categories.map((category) => (
               <Bar
                 key={category.id}
                 dataKey={category.id}
                 name={category.name}
                 stackId="a"
-                fill={category.color || COLORS[index % COLORS.length]}
+                fill={category.color}
               />
             ))}
             <Bar
