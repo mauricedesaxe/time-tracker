@@ -765,6 +765,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/react@npm:^0.27.3":
+  version: 0.27.7
+  resolution: "@floating-ui/react@npm:0.27.7"
+  dependencies:
+    "@floating-ui/react-dom": ^2.1.2
+    "@floating-ui/utils": ^0.2.9
+    tabbable: ^6.0.0
+  peerDependencies:
+    react: ">=17.0.0"
+    react-dom: ">=17.0.0"
+  checksum: dfb79ba88810b625d982dc865e58188d68dc694270105a9be68f87d7d40541fb3282326015f3d34108e5a03f332b7482be5555eee6a7c3dccd4f864095162217
+  languageName: node
+  linkType: hard
+
 "@floating-ui/utils@npm:^0.2.8, @floating-ui/utils@npm:^0.2.9":
   version: 0.2.9
   resolution: "@floating-ui/utils@npm:0.2.9"
@@ -1890,6 +1904,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-datepicker@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@types/react-datepicker@npm:7.0.0"
+  dependencies:
+    react-datepicker: "*"
+  checksum: b73d822abb0410bf9046e14844304f31e2d680c44a510dd757ef4be4861aa0a8943863ef7c427f361f42a630c982ba39fb1882b9532506a5c89d47fe099a2df1
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^19.0.4":
   version: 19.1.2
   resolution: "@types/react-dom@npm:19.1.2"
@@ -2507,7 +2530,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clsx@npm:^2.0.0":
+"clsx@npm:^2.0.0, clsx@npm:^2.1.1":
   version: 2.1.1
   resolution: "clsx@npm:2.1.1"
   checksum: acd3e1ab9d8a433ecb3cc2f6a05ab95fe50b4a3cfc5ba47abb6cbf3754585fcb87b84e90c822a1f256c4198e3b41c7f6c391577ffc8678ad587fc0976b24fd57
@@ -2733,6 +2756,13 @@ __metadata:
     whatwg-mimetype: ^3.0.0
     whatwg-url: ^11.0.0
   checksum: 033fc3dd0fba6d24bc9a024ddcf9923691dd24f90a3d26f6545d6a2f71ec6956f93462f2cdf2183cc46f10dc01ed3bcb36731a8208456eb1a08147e571fe2a76
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: fb681b242cccabed45494468f64282a7d375ea970e0adbcc5dcc92dcb7aba49b2081c2c9739d41bf71ce89ed68dd73bebfe06ca35129490704775d091895710b
   languageName: node
   linkType: hard
 
@@ -5445,6 +5475,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-datepicker@npm:*, react-datepicker@npm:^8.3.0":
+  version: 8.3.0
+  resolution: "react-datepicker@npm:8.3.0"
+  dependencies:
+    "@floating-ui/react": ^0.27.3
+    clsx: ^2.1.1
+    date-fns: ^4.1.0
+  peerDependencies:
+    react: ^16.9.0 || ^17 || ^18 || ^19 || ^19.0.0-rc
+    react-dom: ^16.9.0 || ^17 || ^18 || ^19 || ^19.0.0-rc
+  checksum: 503f587414846fb157132984ba53527758b3437d7fb79fc42821ee9c037d7e5c30a86c02307b2af56032b3e044924926171f8e7be365c7e0409d1e75cec9867d
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^19.0.0":
   version: 19.1.0
   resolution: "react-dom@npm:19.1.0"
@@ -6064,6 +6108,7 @@ __metadata:
     "@testing-library/react": ^16.3.0
     "@types/jest": ^29.5.14
     "@types/react": ^19.0.10
+    "@types/react-datepicker": ^7.0.0
     "@types/react-dom": ^19.0.4
     "@vitejs/plugin-react": ^4.3.4
     eslint: ^9.22.0
@@ -6074,6 +6119,7 @@ __metadata:
     jest: ^29.7.0
     jest-environment-jsdom: ^29.7.0
     react: ^19.0.0
+    react-datepicker: ^8.3.0
     react-dom: ^19.0.0
     recharts: ^2.15.3
     tailwindcss: ^4.1.4

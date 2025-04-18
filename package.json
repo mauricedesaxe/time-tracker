@@ -13,8 +13,10 @@
   "dependencies": {
     "@headlessui/react": "^2.2.2",
     "@tailwindcss/vite": "^4.1.4",
+    "@types/react-datepicker": "^7.0.0",
     "fuse.js": "^7.1.0",
     "react": "^19.0.0",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.3",
     "tailwindcss": "^4.1.4",

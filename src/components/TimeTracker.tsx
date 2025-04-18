@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   useTimeTrackerStore,
   TimeEntry,
@@ -117,8 +119,8 @@ const TimeTracker = () => {
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
   const [editingEntry, setEditingEntry] = useState<string | null>(null);
   const [editDescription, setEditDescription] = useState("");
-  const [editStartTime, setEditStartTime] = useState("");
-  const [editEndTime, setEditEndTime] = useState("");
+  const [editStartTime, setEditStartTime] = useState<Date | null>(null);
+  const [editEndTime, setEditEndTime] = useState<Date | null>(null);
   const [categoryId, setCategoryId] = useState<string>("c1"); // Default to first category
   const [editCategoryId, setEditCategoryId] = useState<string>("");
 
@@ -356,25 +358,12 @@ const TimeTracker = () => {
     setEditDescription(entry.description);
     setEditCategoryId(entry.categoryId || "c1");
 
-    // Format timestamps for datetime-local input
-    const startDate = new Date(entry.startTime);
-    const formattedStart = new Date(
-      startDate.getTime() - startDate.getTimezoneOffset() * 60000
-    )
-      .toISOString()
-      .slice(0, 16);
-    setEditStartTime(formattedStart);
-
+    // Convert timestamps to Date objects
+    setEditStartTime(new Date(entry.startTime));
     if (entry.endTime) {
-      const endDate = new Date(entry.endTime);
-      const formattedEnd = new Date(
-        endDate.getTime() - endDate.getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .slice(0, 16);
-      setEditEndTime(formattedEnd);
+      setEditEndTime(new Date(entry.endTime));
     } else {
-      setEditEndTime("");
+      setEditEndTime(null);
     }
   };
 
@@ -385,9 +374,9 @@ const TimeTracker = () => {
 
   // Save edited entry
   const saveEdit = () => {
-    if (!editingEntry) return;
+    if (!editingEntry || !editStartTime) return;
 
-    const startTimeMs = new Date(editStartTime).getTime();
+    const startTimeMs = editStartTime.getTime();
     const updates: Partial<TimeEntry> = {
       description: editDescription,
       startTime: startTimeMs,
@@ -396,7 +385,7 @@ const TimeTracker = () => {
 
     // Only set endTime if editEndTime has a value
     if (editEndTime) {
-      const endTimeMs = new Date(editEndTime).getTime();
+      const endTimeMs = editEndTime.getTime();
 
       // Validate times
       if (startTimeMs >= endTimeMs) {
@@ -616,22 +605,31 @@ const TimeTracker = () => {
                           <label className="block text-xs mb-1 dark:text-gray-300">
                             Start Time
                           </label>
-                          <input
-                            type="datetime-local"
+                          <DatePicker
+                            selected={editStartTime}
+                            onChange={(date) => setEditStartTime(date)}
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={15}
+                            dateFormat="MMMM d, yyyy h:mm aa"
                             className="w-full px-3 py-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                            value={editStartTime}
-                            onChange={(e) => setEditStartTime(e.target.value)}
+                            placeholderText="Select start date and time"
                           />
                         </div>
                         <div>
                           <label className="block text-xs mb-1 dark:text-gray-300">
                             End Time
                           </label>
-                          <input
-                            type="datetime-local"
+                          <DatePicker
+                            selected={editEndTime}
+                            onChange={(date) => setEditEndTime(date)}
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={15}
+                            dateFormat="MMMM d, yyyy h:mm aa"
                             className="w-full px-3 py-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                            value={editEndTime}
-                            onChange={(e) => setEditEndTime(e.target.value)}
+                            placeholderText="Select end date and time"
+                            isClearable
                           />
                         </div>
                       </div>
