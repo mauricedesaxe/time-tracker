@@ -217,6 +217,12 @@ const TimeTracker = () => {
       return;
     }
 
+    // Clear timer interval to prevent it from running in background
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+
     // Update entry with description, category and end time
     updateTimeEntry(entryToSave, {
       description: modalDescription,
