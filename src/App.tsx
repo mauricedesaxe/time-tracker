@@ -3,6 +3,7 @@ import TimeTracker from "./components/TimeTracker";
 import { initTimeTrackerState } from "./store/timeTrackerStore";
 import "./App.css";
 import CategoryManager from "./components/CategoryManager";
+import AnalyticsCharts from "./components/AnalyticsCharts";
 
 function App() {
   useEffect(() => {
@@ -21,7 +22,7 @@ function App() {
         </main>
 
         <aside className="sticky top-8 hidden w-96 shrink-0 xl:block">
-          {/* Right column area */}
+          <AnalyticsCharts />
         </aside>
       </div>
     </div>
