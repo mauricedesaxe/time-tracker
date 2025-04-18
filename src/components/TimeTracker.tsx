@@ -204,6 +204,7 @@ const TimeTracker = () => {
   // Stop the current timer
   const stopTimer = () => {
     if (!currentEntry) return;
+    if (description.trim() === "") return;
 
     // Clear timer interval
     if (timerInterval) {
