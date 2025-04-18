@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useTimeTrackerStore } from "../store/timeTrackerStore";
+import Fuse from "fuse.js";
 
 // Define interfaces for chart data
 interface PieChartData {
@@ -37,10 +38,7 @@ interface DailyChartData {
 interface WorkTypeData {
   category: string;
   categoryId: string;
-  regular: number;
-  content: number;
-  meeting: number;
-  coding: number;
+  [workType: string]: string | number;
 }
 
 // Helper functions to process data
@@ -67,6 +65,181 @@ const getWeekStart = (date: Date): string => {
   })} ${monday.getDate()}`;
 };
 
+// Predefined work types with related terms
+const WORK_TYPE_DEFINITIONS = [
+  {
+    id: "meeting",
+    name: "Meeting",
+    terms: [
+      "meet",
+      "call",
+      "zoom",
+      "conference",
+      "discussion",
+      "sync",
+      "standup",
+      "1on1",
+      "chat",
+      "huddle",
+      "interview",
+    ],
+  },
+  {
+    id: "coding",
+    name: "Coding",
+    terms: [
+      "code",
+      "programming",
+      "dev",
+      "develop",
+      "implementation",
+      "debug",
+      "fix",
+      "bug",
+      "feature",
+      "refactor",
+      "test",
+    ],
+  },
+  {
+    id: "content",
+    name: "Content",
+    terms: [
+      "write",
+      "blog",
+      "article",
+      "copy",
+      "content",
+      "documentation",
+      "doc",
+      "post",
+      "draft",
+      "edit",
+      "proofread",
+    ],
+  },
+  {
+    id: "communication",
+    name: "Communication",
+    terms: [
+      "email",
+      "correspondence",
+      "message",
+      "reply",
+      "slack",
+      "dm",
+      "chat",
+      "contact",
+      "respond",
+    ],
+  },
+  {
+    id: "design",
+    name: "Design",
+    terms: [
+      "design",
+      "ui",
+      "ux",
+      "interface",
+      "prototype",
+      "mockup",
+      "wireframe",
+      "sketch",
+      "figma",
+    ],
+  },
+  {
+    id: "research",
+    name: "Research",
+    terms: [
+      "research",
+      "study",
+      "learn",
+      "explore",
+      "investigate",
+      "review",
+      "analyze",
+      "evaluate",
+      "read",
+    ],
+  },
+  {
+    id: "planning",
+    name: "Planning",
+    terms: [
+      "plan",
+      "strategy",
+      "roadmap",
+      "backlog",
+      "prioritize",
+      "organize",
+      "schedule",
+      "outline",
+    ],
+  },
+  {
+    id: "admin",
+    name: "Administration",
+    terms: [
+      "admin",
+      "manage",
+      "organize",
+      "coordinate",
+      "setup",
+      "configure",
+      "maintenance",
+    ],
+  },
+];
+
+// Create a collection of all terms for fuzzy matching
+const allTerms = WORK_TYPE_DEFINITIONS.flatMap((type) =>
+  type.terms.map((term) => ({ term, typeId: type.id }))
+);
+
+// Initialize Fuse instance
+const fuseOptions = {
+  includeScore: true,
+  threshold: 0.4,
+  keys: ["term"],
+};
+const fuse = new Fuse(allTerms, fuseOptions);
+
+// Generate a pleasant color based on string input
+const stringToColor = (str: string) => {
+  // Pleasant color palette with good contrast
+  const colors = [
+    "#4E79A7",
+    "#F28E2B",
+    "#E15759",
+    "#76B7B2",
+    "#59A14F",
+    "#EDC948",
+    "#B07AA1",
+    "#FF9DA7",
+    "#9C755F",
+    "#BAB0AC",
+    "#4dc9f6",
+    "#f67019",
+    "#f53794",
+    "#537bc4",
+    "#acc236",
+    "#166a8f",
+    "#00a950",
+    "#58595b",
+    "#8549ba",
+  ];
+
+  // Convert string to a number for selecting a color
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  // Use the hash to select a color from the palette
+  return colors[Math.abs(hash) % colors.length];
+};
+
 const COLORS = [
   "#FF6384",
   "#36A2EB",
@@ -78,12 +251,56 @@ const COLORS = [
   "#C9CBCF",
 ];
 
-const WORK_TYPES = [
-  { id: "regular", name: "Regular Work", color: "#4299E1" },
-  { id: "content", name: "Content", color: "#F6AD55" },
-  { id: "meeting", name: "Meeting", color: "#48BB78" },
-  { id: "coding", name: "Coding", color: "#E53E3E" },
-];
+// Extract work type from description
+const getWorkTypeFromDescription = (description: string): string => {
+  if (!description || !description.trim()) return "unspecified";
+
+  const lowerDesc = description.toLowerCase();
+
+  // First try direct matches with common work type keywords
+  for (const type of WORK_TYPE_DEFINITIONS) {
+    // Check for exact matches (faster than fuzzy search)
+    if (type.terms.some((term) => lowerDesc.includes(term))) {
+      return type.id;
+    }
+  }
+
+  // If no direct match, try fuzzy matching with Fuse.js
+  // Extract important words from description (3+ chars)
+  const words = lowerDesc.split(/\s+/).filter((word) => word.length > 2);
+
+  if (words.length === 0) return "other";
+
+  // Try to find the best match for each significant word
+  const matches = words
+    .map((word) => ({
+      word,
+      matches: fuse.search(word),
+    }))
+    .filter((result) => result.matches.length > 0);
+
+  if (matches.length === 0) {
+    // If no fuzzy matches found, use the first meaningful word as the type
+    return words[0].toLowerCase();
+  }
+
+  // Find the best match (lowest score = best match)
+  const bestMatch = matches
+    .flatMap((result) => result.matches)
+    .sort((a, b) => (a.score || 1) - (b.score || 1))[0];
+
+  return bestMatch.item.typeId;
+};
+
+// Generate a pleasant color based on work type
+const getWorkTypeColor = (workTypeId: string): string => {
+  // Find predefined color if it exists
+  const workType = WORK_TYPE_DEFINITIONS.find((type) => type.id === workTypeId);
+  if (workType && workType.color) return workType.color;
+
+  // Otherwise generate a color
+  return stringToColor(workTypeId);
+};
 
 const AnalyticsCharts = () => {
   const { getTimeEntriesSorted, getCategories, getCategory } =
@@ -98,6 +315,9 @@ const AnalyticsCharts = () => {
   const [weeklyData, setWeeklyData] = useState<WeeklyChartData[]>([]);
   const [dailyData, setDailyData] = useState<DailyChartData[]>([]);
   const [workTypeData, setWorkTypeData] = useState<WorkTypeData[]>([]);
+  const [workTypes, setWorkTypes] = useState<
+    { id: string; name: string; color: string }[]
+  >([]);
   const [totalHours, setTotalHours] = useState<number>(0);
 
   // Process data for charts when entries change
@@ -264,48 +484,67 @@ const AnalyticsCharts = () => {
 
     setDailyData(dailyChartData);
 
-    // Process work type data
-    // Simulate work types for now based on categories
-    // In a real app, you would have a workType field in your entries
-    const workTypesByCategory: Record<string, string> = {
-      c1: "coding", // Assign work types based on category
-      c2: "regular",
-    };
+    // Process work type data based on descriptions
+    // Extract work types from descriptions
+    const workTypeSet = new Set<string>();
+    const workTypesByEntry: Record<string, string> = {};
+
+    currentWeekEntries.forEach((entry) => {
+      const workType = getWorkTypeFromDescription(entry.description);
+      workTypesByEntry[entry.id] = workType;
+      workTypeSet.add(workType);
+    });
+
+    // Create work type colors map
+    const workTypeColors: { id: string; name: string; color: string }[] =
+      Array.from(workTypeSet).map((type) => ({
+        id: type,
+        name: type.charAt(0).toUpperCase() + type.slice(1), // Capitalize
+        color: getWorkTypeColor(type),
+      }));
+
+    setWorkTypes(workTypeColors);
 
     const workTypeHours: Record<string, Record<string, number>> = {};
 
     // Initialize by category
     categories.forEach((category) => {
       if (!workTypeHours[category.id]) {
-        workTypeHours[category.id] = {
-          regular: 0,
-          content: 0,
-          meeting: 0,
-          coding: 0,
-        };
+        workTypeHours[category.id] = {};
+        // Initialize all work types with 0 hours
+        workTypeColors.forEach((workType) => {
+          workTypeHours[category.id][workType.id] = 0;
+        });
       }
     });
 
+    // Add uncategorized if it has entries
+    if (currentWeekEntries.some((entry) => !entry.categoryId)) {
+      workTypeHours["uncategorized"] = {};
+      workTypeColors.forEach((workType) => {
+        workTypeHours["uncategorized"][workType.id] = 0;
+      });
+    }
+
     // Fill in data
     currentWeekEntries.forEach((entry) => {
-      if (!entry.endTime || !entry.categoryId) return;
+      if (!entry.endTime) return;
 
-      const categoryId = entry.categoryId;
-      const workType = workTypesByCategory[categoryId] || "regular";
+      const categoryId = entry.categoryId || "uncategorized";
+      const workType = workTypesByEntry[entry.id];
 
       const duration = entry.endTime - entry.startTime;
       const hours = hoursFromMilliseconds(duration);
 
       if (!workTypeHours[categoryId]) {
-        workTypeHours[categoryId] = {
-          regular: 0,
-          content: 0,
-          meeting: 0,
-          coding: 0,
-        };
+        workTypeHours[categoryId] = {};
+        workTypeColors.forEach((wt) => {
+          workTypeHours[categoryId][wt.id] = 0;
+        });
       }
 
-      workTypeHours[categoryId][workType] += hours;
+      workTypeHours[categoryId][workType] =
+        (workTypeHours[categoryId][workType] || 0) + hours;
     });
 
     // Format data for stacked chart
@@ -313,14 +552,17 @@ const AnalyticsCharts = () => {
       .filter(([, data]) => Object.values(data).some((hours) => hours > 0))
       .map(([categoryId, typeData]) => {
         const category = getCategory(categoryId);
-        return {
+        const result: WorkTypeData = {
           category: category?.name || "Uncategorized",
           categoryId,
-          regular: typeData.regular || 0,
-          content: typeData.content || 0,
-          meeting: typeData.meeting || 0,
-          coding: typeData.coding || 0,
         };
+
+        // Add all work types to the result
+        Object.entries(typeData).forEach(([workType, hours]) => {
+          result[workType] = hours;
+        });
+
+        return result;
       });
 
     setWorkTypeData(workTypeChartData);
@@ -485,7 +727,7 @@ const AnalyticsCharts = () => {
       {/* Work Type Chart */}
       <div className="bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-lg font-medium mb-4">
-          Current Week: Time Distribution by Work Type
+          Current Week: Time Distribution by Task Type
         </h2>
 
         <ResponsiveContainer width="100%" height={300}>
@@ -495,12 +737,12 @@ const AnalyticsCharts = () => {
             <YAxis type="category" dataKey="category" width={120} />
             <Tooltip
               formatter={(value: number, name: string) => {
-                const workType = WORK_TYPES.find((t) => t.id === name);
+                const workType = workTypes.find((t) => t.id === name);
                 return [`${value.toFixed(1)}h`, workType?.name || name];
               }}
             />
             <Legend />
-            {WORK_TYPES.map((type) => (
+            {workTypes.map((type) => (
               <Bar
                 key={type.id}
                 dataKey={type.id}
