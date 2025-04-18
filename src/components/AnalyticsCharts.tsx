@@ -638,48 +638,6 @@ const AnalyticsCharts = () => {
         </div>
       </div>
 
-      {/* Weekly Chart */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">
-          Time Tracked by Category (Past 6 Weeks)
-        </h2>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={weeklyData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="week" />
-            <YAxis unit="h" />
-            <Tooltip
-              formatter={(value: number, name: string) => {
-                const match = name.match(/^(.+)_name$/);
-                const actualName = match
-                  ? weeklyData.find((d) => d[match[1] + "_name"])?.[
-                      match[1] + "_name"
-                    ]
-                  : name;
-                return [`${value.toFixed(1)}h`, actualName || name];
-              }}
-            />
-            <Legend />
-            {categories.map((category, index) => (
-              <Bar
-                key={category.id}
-                dataKey={category.id}
-                name={category.name}
-                stackId="a"
-                fill={category.color || COLORS[index % COLORS.length]}
-              />
-            ))}
-            <Bar
-              dataKey="uncategorized"
-              name="Uncategorized"
-              stackId="a"
-              fill="#CCCCCC"
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
       {/* Daily Chart */}
       <div className="bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-lg font-medium mb-4">
