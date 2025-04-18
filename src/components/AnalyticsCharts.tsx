@@ -59,7 +59,9 @@ const WORK_TYPES = [
 const AnalyticsCharts = () => {
   const { getTimeEntriesSorted, getCategories, getCategory } =
     useTimeTrackerStore();
-  const entries = getTimeEntriesSorted("startTime", true);
+  const entries = getTimeEntriesSorted("startTime", true).filter(
+    (entry) => !!entry.endTime
+  );
   const categories = getCategories();
 
   // State for chart data
