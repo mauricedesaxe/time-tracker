@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "../store/StoreContext";
 import { TimeEntry } from "../store/timeTrackerStore";
 import { useRows, useCreateRow } from "../hooks/useStore";
@@ -40,6 +40,17 @@ const TimeTracker = () => {
   // Create a new time entry
   const createTimeEntry = useCreateRow(store, "timeEntries");
 
+  // Update description when current entry changes
+  useEffect(() => {
+    if (currentEntry) {
+      const entry = store.getRow(
+        "timeEntries",
+        currentEntry
+      ) as unknown as TimeEntry;
+      setDescription(entry.description);
+    }
+  }, [currentEntry, store]);
+
   // Start a new timer
   const startTimer = () => {
     if (description.trim() === "") return;
@@ -53,7 +64,6 @@ const TimeTracker = () => {
     });
 
     setCurrentEntry(id);
-    setDescription("");
   };
 
   // Stop the current timer
@@ -66,6 +76,19 @@ const TimeTracker = () => {
     });
 
     setCurrentEntry(null);
+    setDescription("");
+  };
+
+  // Update description of current entry
+  const updateDescription = (newDescription: string) => {
+    setDescription(newDescription);
+
+    if (currentEntry) {
+      store.setRow("timeEntries", currentEntry, {
+        ...store.getRow("timeEntries", currentEntry),
+        description: newDescription,
+      });
+    }
   };
 
   return (
@@ -77,8 +100,7 @@ const TimeTracker = () => {
           placeholder="What are you working on?"
           className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          disabled={!!currentEntry}
+          onChange={(e) => updateDescription(e.target.value)}
         />
 
         <div className="flex items-center space-x-4">
