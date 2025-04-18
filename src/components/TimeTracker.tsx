@@ -32,6 +32,10 @@ const TimeTracker = () => {
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
   const [timeDisplay, setTimeDisplay] = useState("");
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const [editingEntry, setEditingEntry] = useState<string | null>(null);
+  const [editDescription, setEditDescription] = useState("");
+  const [editStartTime, setEditStartTime] = useState("");
+  const [editEndTime, setEditEndTime] = useState("");
 
   // Get all time entries, sorted by start time (most recent first)
   const timeEntries = useRows(store, "timeEntries", undefined, {
@@ -154,6 +158,59 @@ const TimeTracker = () => {
     }
   };
 
+  // Toggle entry edit mode
+  const startEditingEntry = (entry: TimeEntry) => {
+    setEditingEntry(entry.id);
+    setEditDescription(entry.description);
+
+    // Format timestamps for datetime-local input
+    const startDate = new Date(entry.startTime);
+    const formattedStart = new Date(
+      startDate.getTime() - startDate.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .slice(0, 16);
+    setEditStartTime(formattedStart);
+
+    if (entry.endTime) {
+      const endDate = new Date(entry.endTime);
+      const formattedEnd = new Date(
+        endDate.getTime() - endDate.getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .slice(0, 16);
+      setEditEndTime(formattedEnd);
+    }
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    setEditingEntry(null);
+  };
+
+  // Save edited entry
+  const saveEdit = () => {
+    if (!editingEntry) return;
+
+    const startTimeMs = new Date(editStartTime).getTime();
+    const endTimeMs = editEndTime ? new Date(editEndTime).getTime() : undefined;
+
+    // Validate times
+    if (endTimeMs && startTimeMs >= endTimeMs) {
+      alert("End time must be after start time");
+      return;
+    }
+
+    store.setRow("timeEntries", editingEntry, {
+      ...store.getRow("timeEntries", editingEntry),
+      description: editDescription,
+      startTime: startTimeMs,
+      ...(endTimeMs && { endTime: endTimeMs }),
+    });
+
+    setEditingEntry(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Timer input */}
@@ -204,36 +261,98 @@ const TimeTracker = () => {
               const { id, description, startTime, endTime } = entry;
               const isRunning = !endTime;
               const isCurrentEntry = id === currentEntry;
+              const isEditing = id === editingEntry;
 
               return (
                 <div key={id} className="p-4 border rounded-lg bg-gray-50">
-                  <div className="flex justify-between">
-                    <h3 className="font-medium">{description}</h3>
-                    <div className="flex items-center space-x-2">
-                      {isRunning ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Running
-                        </span>
-                      ) : (
-                        <span className="text-gray-500">
-                          {formatTime(getDuration(startTime, endTime))}
-                        </span>
-                      )}
-
-                      {isRunning && !isCurrentEntry && (
+                  {isEditing ? (
+                    // Edit form
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border rounded"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        placeholder="Description"
+                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs mb-1">
+                            Start Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            className="w-full px-3 py-2 border rounded"
+                            value={editStartTime}
+                            onChange={(e) => setEditStartTime(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs mb-1">End Time</label>
+                          <input
+                            type="datetime-local"
+                            className="w-full px-3 py-2 border rounded"
+                            value={editEndTime}
+                            onChange={(e) => setEditEndTime(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end space-x-2">
                         <button
-                          onClick={() => resumeTimer(id)}
-                          className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                          onClick={cancelEdit}
+                          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
                         >
-                          Resume
+                          Cancel
                         </button>
-                      )}
+                        <button
+                          onClick={saveEdit}
+                          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Save
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-1 text-sm text-gray-500">
-                    Started: {formatDate(startTime)}
-                    {endTime && ` • Ended: ${formatDate(endTime)}`}
-                  </div>
+                  ) : (
+                    // Normal view
+                    <>
+                      <div className="flex justify-between">
+                        <h3 className="font-medium">{description}</h3>
+                        <div className="flex items-center space-x-2">
+                          {isRunning ? (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Running
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">
+                              {formatTime(getDuration(startTime, endTime))}
+                            </span>
+                          )}
+
+                          {isRunning && !isCurrentEntry && (
+                            <button
+                              onClick={() => resumeTimer(id)}
+                              className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              Resume
+                            </button>
+                          )}
+
+                          {!isRunning && (
+                            <button
+                              onClick={() => startEditingEntry(entry)}
+                              className="ml-2 px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-1 text-sm text-gray-500">
+                        Started: {formatDate(startTime)}
+                        {endTime && ` • Ended: ${formatDate(endTime)}`}
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}
