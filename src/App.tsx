@@ -25,6 +25,15 @@ function App() {
           <AnalyticsCharts />
         </aside>
       </div>
+
+      <a
+        href="https://alexlazar.dev"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 right-4 text-xs bg-gray-800 dark:bg-gray-700 text-white px-2 py-1 rounded-full shadow-md hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200 opacity-70 hover:opacity-100"
+      >
+        built by Alex
+      </a>
     </div>
   );
 }
