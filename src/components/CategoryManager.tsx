@@ -81,7 +81,7 @@ const CategoryManager = () => {
   return (
     <div className="py-12 px-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Categories</h2>
+        <h2 className="text-xl font-semibold dark:text-white">Categories</h2>
         <button
           onClick={() => {
             setEditingCategoryId(null);
@@ -89,7 +89,7 @@ const CategoryManager = () => {
             setNewName("");
             setNewColor("#10b981");
           }}
-          className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+          className="text-sm bg-blue-500 dark:bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-600 dark:hover:bg-blue-700"
         >
           {showAddForm ? "Cancel" : "Add Category"}
         </button>
@@ -97,26 +97,26 @@ const CategoryManager = () => {
 
       {/* Add/Edit Form */}
       {(showAddForm || editingCategoryId) && (
-        <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium mb-3">
+        <div className="mb-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
+          <h3 className="text-lg font-medium mb-3 dark:text-white">
             {editingCategoryId ? "Edit Category" : "Add New Category"}
           </h3>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Name
               </label>
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="Category name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Color
               </label>
               <div className="flex items-center">
@@ -124,13 +124,13 @@ const CategoryManager = () => {
                   type="color"
                   value={newColor}
                   onChange={(e) => setNewColor(e.target.value)}
-                  className="h-8 w-10 border rounded mr-2"
+                  className="h-8 w-10 border dark:border-gray-600 rounded mr-2"
                 />
                 <input
                   type="text"
                   value={newColor}
                   onChange={(e) => setNewColor(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   placeholder="#RRGGBB"
                 />
               </div>
@@ -141,7 +141,7 @@ const CategoryManager = () => {
                 onClick={
                   editingCategoryId ? handleUpdateCategory : handleAddCategory
                 }
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
               >
                 {editingCategoryId ? "Update" : "Add"}
               </button>
@@ -153,25 +153,29 @@ const CategoryManager = () => {
       {/* Categories List */}
       <div className="space-y-2">
         {categories.length === 0 ? (
-          <p className="text-gray-500">No categories found.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            No categories found.
+          </p>
         ) : (
           categories.map((category) => (
             <div
               key={category.id}
-              className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
+              className="flex items-center justify-between p-3 border dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <div className="flex items-center">
                 <div
                   className="w-4 h-4 rounded-full mr-3"
                   style={{ backgroundColor: category.color }}
                 ></div>
-                <span className="font-medium">{category.name}</span>
+                <span className="font-medium dark:text-white">
+                  {category.name}
+                </span>
               </div>
 
               <div className="flex space-x-1">
                 <button
                   onClick={() => startEdit(category)}
-                  className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                   title="Edit"
                 >
                   <svg
@@ -191,7 +195,7 @@ const CategoryManager = () => {
 
                 <button
                   onClick={() => handleDeleteCategory(category.id)}
-                  className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                   title="Delete"
                 >
                   <svg
@@ -216,8 +220,10 @@ const CategoryManager = () => {
 
       {/* Category preview */}
       {(showAddForm || editingCategoryId) && (
-        <div className="mt-4 border-t pt-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Preview</h3>
+        <div className="mt-4 border-t dark:border-gray-700 pt-4">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Preview
+          </h3>
           <div className="flex items-center">
             <span
               className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mr-2"
@@ -228,7 +234,7 @@ const CategoryManager = () => {
             >
               {newName || "Category name"}
             </span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               How it will appear in your time entries
             </span>
           </div>

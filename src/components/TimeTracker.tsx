@@ -370,7 +370,7 @@ const TimeTracker = () => {
           <div className="space-y-2">
             <div className="text-2xl flex items-center">
               <svg
-                className="w-6 h-6 mr-2"
+                className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -381,11 +381,13 @@ const TimeTracker = () => {
               <span className="font-semibold">Tracked time</span>
             </div>
             {currentEntry && (
-              <div className="text-lg font-mono">{timeDisplay}</div>
+              <div className="text-lg font-mono text-blue-600 dark:text-blue-400">
+                {timeDisplay}
+              </div>
             )}
           </div>
           <div className="flex space-x-2">
-            <button className="flex items-center px-3 py-1 border rounded text-blue-600 hover:bg-blue-50">
+            <button className="flex items-center px-3 py-1 border dark:border-gray-600 rounded text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700">
               <svg
                 className="w-4 h-4 mr-1"
                 viewBox="0 0 24 24"
@@ -405,14 +407,14 @@ const TimeTracker = () => {
               <button
                 onClick={startTimer}
                 disabled={!!currentEntry}
-                className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                className="flex items-center px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
               >
                 Start Timer
               </button>
             ) : (
               <button
                 onClick={stopTimer}
-                className="flex items-center px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                className="flex items-center px-3 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50"
               >
                 Stop Timer
               </button>
@@ -421,12 +423,12 @@ const TimeTracker = () => {
         </div>
 
         {sortedEntries.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             No time entries yet. Start your first timer!
           </p>
         ) : (
           <>
-            <div className="grid grid-cols-12 gap-4 py-2 border-b text-gray-500 font-medium text-sm">
+            <div className="grid grid-cols-12 gap-4 py-2 border-b dark:border-gray-700 text-gray-500 dark:text-gray-400 font-medium text-sm">
               <div className="col-span-2">DATE</div>
               <div className="col-span-3">TIME</div>
               <div className="col-span-7">DETAILS</div>
@@ -474,23 +476,28 @@ const TimeTracker = () => {
                   : Math.round((endTime! - startTime) / 60000);
 
                 return isEditing ? (
-                  <div key={id} className="p-4 border rounded-lg bg-gray-50">
-                    {/* Edit form stays the same */}
+                  <div
+                    key={id}
+                    className="p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800"
+                  >
+                    {/* Edit form */}
                     <div className="space-y-3">
                       <input
                         type="text"
-                        className="w-full px-3 py-2 border rounded"
+                        className="w-full px-3 py-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                         value={editDescription}
                         onChange={(e) => setEditDescription(e.target.value)}
                         placeholder="Description"
                       />
 
                       <div>
-                        <label className="block text-xs mb-1">Category</label>
+                        <label className="block text-xs mb-1 dark:text-gray-300">
+                          Category
+                        </label>
                         <select
                           value={editCategoryId}
                           onChange={(e) => setEditCategoryId(e.target.value)}
-                          className="w-full px-3 py-2 border rounded"
+                          className="w-full px-3 py-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                         >
                           {categories.map((category) => (
                             <option key={category.id} value={category.id}>
@@ -502,21 +509,23 @@ const TimeTracker = () => {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs mb-1">
+                          <label className="block text-xs mb-1 dark:text-gray-300">
                             Start Time
                           </label>
                           <input
                             type="datetime-local"
-                            className="w-full px-3 py-2 border rounded"
+                            className="w-full px-3 py-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                             value={editStartTime}
                             onChange={(e) => setEditStartTime(e.target.value)}
                           />
                         </div>
                         <div>
-                          <label className="block text-xs mb-1">End Time</label>
+                          <label className="block text-xs mb-1 dark:text-gray-300">
+                            End Time
+                          </label>
                           <input
                             type="datetime-local"
-                            className="w-full px-3 py-2 border rounded"
+                            className="w-full px-3 py-2 border dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                             value={editEndTime}
                             onChange={(e) => setEditEndTime(e.target.value)}
                           />
@@ -525,13 +534,13 @@ const TimeTracker = () => {
                       <div className="flex justify-end space-x-2">
                         <button
                           onClick={cancelEdit}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
+                          className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={saveEdit}
-                          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                          className="px-3 py-1 text-sm bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
                         >
                           Save
                         </button>
@@ -541,14 +550,14 @@ const TimeTracker = () => {
                 ) : (
                   <div
                     key={id}
-                    className="grid grid-cols-12 gap-4 py-3 border-b hover:bg-gray-50"
+                    className="grid grid-cols-12 gap-4 py-3 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <div className="col-span-2 text-orange-500 font-medium">
+                    <div className="col-span-2 text-orange-500 dark:text-orange-400 font-medium">
                       {monthAbbr} {day}
                     </div>
                     <div className="col-span-4 flex items-center">
                       <svg
-                        className="w-4 h-4 mr-1 text-gray-500"
+                        className="w-4 h-4 mr-1 text-gray-500 dark:text-gray-400"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -561,7 +570,7 @@ const TimeTracker = () => {
                         />
                       </svg>
                       <span className="font-medium">{durationMinutes} min</span>
-                      <span className="text-xs text-gray-500 ml-1">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                         ( {timeDisplay} )
                       </span>
                     </div>
@@ -575,7 +584,7 @@ const TimeTracker = () => {
                       {isRunning && !isCurrentEntry && (
                         <button
                           onClick={() => resumeTimer(id)}
-                          className="p-1 text-blue-500 hover:bg-blue-100 rounded"
+                          className="p-1 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded"
                           title="Resume"
                         >
                           <svg
@@ -599,7 +608,7 @@ const TimeTracker = () => {
                       {!isRunning && (
                         <button
                           onClick={() => startEditingEntry(entry)}
-                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                          className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                           title="Edit"
                         >
                           <svg
@@ -620,7 +629,7 @@ const TimeTracker = () => {
 
                       <button
                         onClick={() => handleDeleteEntry(id)}
-                        className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                        className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                         title="Delete"
                       >
                         <svg
@@ -649,19 +658,19 @@ const TimeTracker = () => {
       {/* Modal for task description */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">
               What did you work on?
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Description
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   value={modalDescription}
                   onChange={(e) => setModalDescription(e.target.value)}
                   placeholder="What did you work on?"
@@ -670,13 +679,13 @@ const TimeTracker = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Category
                 </label>
                 <select
                   value={modalCategoryId}
                   onChange={(e) => setModalCategoryId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 >
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
@@ -689,13 +698,13 @@ const TimeTracker = () => {
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   onClick={cancelModal}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveEntryFromModal}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                  className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
                   disabled={modalDescription.trim() === ""}
                 >
                   Save

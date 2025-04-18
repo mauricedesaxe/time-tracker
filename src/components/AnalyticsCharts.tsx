@@ -536,9 +536,11 @@ const AnalyticsCharts = () => {
   // If no data, show a placeholder
   if (entries.length === 0) {
     return (
-      <div className="space-y-6 bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-medium">Analytics</h2>
-        <p className="text-gray-500">Start tracking time to see analytics.</p>
+      <div className="space-y-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+        <h2 className="text-lg font-medium dark:text-white">Analytics</h2>
+        <p className="text-gray-500 dark:text-gray-400">
+          Start tracking time to see analytics.
+        </p>
       </div>
     );
   }
@@ -546,11 +548,11 @@ const AnalyticsCharts = () => {
   return (
     <div className="space-y-6">
       {/* Daily Chart with Summary Legend */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-3">
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+        <h2 className="text-lg font-medium mb-3 dark:text-white">
           Time Tracked by Category (Past 6 Days)
         </h2>
-        <p className="text-gray-600 font-medium mb-4">
+        <p className="text-gray-600 dark:text-gray-300 font-medium mb-4">
           This Week Total: {totalHours.toFixed(1)}h
         </p>
 
@@ -559,7 +561,7 @@ const AnalyticsCharts = () => {
           {currentWeekData.map((entry, index) => (
             <div
               key={`legend-${index}`}
-              className="flex items-center text-sm p-2 rounded-md bg-gray-100 px-4 overflow-hidden"
+              className="flex items-center text-sm p-2 rounded-md bg-gray-100 dark:bg-gray-700 px-4 overflow-hidden"
             >
               <div
                 className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
@@ -567,7 +569,7 @@ const AnalyticsCharts = () => {
                   backgroundColor: entry.color,
                 }}
               ></div>
-              <span className="ml-auto pl-1 whitespace-nowrap text-gray-500 flex-shrink-0">
+              <span className="ml-auto pl-1 whitespace-nowrap text-gray-500 dark:text-gray-400 flex-shrink-0">
                 ({entry.hours.toFixed(1)}h)
               </span>
             </div>
@@ -576,9 +578,9 @@ const AnalyticsCharts = () => {
 
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={dailyData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis unit="h" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="day" stroke="#9CA3AF" />
+            <YAxis unit="h" stroke="#9CA3AF" />
             <Tooltip
               formatter={(value: number, name: string) => {
                 if (name === "total") return [`${value.toFixed(1)}h`, "Total"];
@@ -591,8 +593,15 @@ const AnalyticsCharts = () => {
                   : name;
                 return [`${value.toFixed(1)}h`, actualName || name];
               }}
+              contentStyle={{
+                backgroundColor: "rgba(30, 41, 59, 0.8)",
+                borderColor: "#475569",
+                color: "#E5E7EB",
+              }}
+              itemStyle={{ color: "#E5E7EB" }}
+              labelStyle={{ color: "#E5E7EB" }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ color: "#E5E7EB" }} />
             {categories.map((category) => (
               <Bar
                 key={category.id}
@@ -613,23 +622,35 @@ const AnalyticsCharts = () => {
       </div>
 
       {/* Work Type Chart */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+        <h2 className="text-lg font-medium mb-4 dark:text-white">
           Current Week: Time Distribution by Task Type
         </h2>
 
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={workTypeData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" unit="h" />
-            <YAxis type="category" dataKey="category" width={120} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis type="number" unit="h" stroke="#9CA3AF" />
+            <YAxis
+              type="category"
+              dataKey="category"
+              width={120}
+              stroke="#9CA3AF"
+            />
             <Tooltip
               formatter={(value: number, name: string) => {
                 const workType = workTypes.find((t) => t.id === name);
                 return [`${value.toFixed(1)}h`, workType?.name || name];
               }}
+              contentStyle={{
+                backgroundColor: "rgba(30, 41, 59, 0.8)",
+                borderColor: "#475569",
+                color: "#E5E7EB",
+              }}
+              itemStyle={{ color: "#E5E7EB" }}
+              labelStyle={{ color: "#E5E7EB" }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ color: "#E5E7EB" }} />
             {workTypes.map((type) => (
               <Bar
                 key={type.id}

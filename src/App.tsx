@@ -11,10 +11,10 @@ function App() {
   }, []);
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-full flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
       <div className="mx-auto flex w-full max-w-7xl items-start gap-x-8 px-4 py-10 sm:px-6 lg:px-8">
         <main className="flex-1">
-          <div className="relative px-4 py-10 bg-white shadow-lg rounded-lg sm:rounded-3xl sm:p-8 min-w-xs">
+          <div className="relative px-4 py-10 bg-white dark:bg-gray-800 shadow-lg rounded-lg sm:rounded-3xl sm:p-8 min-w-xs">
             <h1 className="sr-only">Simple Time Tracker</h1>
             <TimeTracker />
             <CategoryManager />
