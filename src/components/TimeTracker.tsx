@@ -440,25 +440,23 @@ const TimeTracker = () => {
               </svg>
               Export
             </button>
-            <button
-              onClick={startTimer}
-              disabled={!!currentEntry}
-              className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-              <svg
-                className="w-4 h-4 mr-1"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
+            {!currentEntry ? (
+              <button
+                onClick={startTimer}
+                disabled={!!currentEntry}
+                className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
               >
-                <path
-                  d="M12 5v14M5 12h14"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              New
-            </button>
+                Start Timer
+              </button>
+            ) : (
+              <button
+                onClick={stopTimer}
+                disabled={description.trim() === ""}
+                className="flex items-center px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+              >
+                Stop Timer
+              </button>
+            )}
           </div>
         </div>
 
