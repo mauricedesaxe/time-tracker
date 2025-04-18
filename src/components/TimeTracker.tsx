@@ -406,7 +406,7 @@ const TimeTracker = () => {
       {/* Time entries list */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
+          <div className="space-y-2">
             <div className="text-2xl flex items-center">
               <svg
                 className="w-6 h-6 mr-2"
@@ -419,6 +419,9 @@ const TimeTracker = () => {
               </svg>
               <span className="font-semibold">Tracked time</span>
             </div>
+            {currentEntry && (
+              <div className="text-lg font-mono">{timeDisplay}</div>
+            )}
           </div>
           <div className="flex space-x-2">
             <button className="flex items-center px-3 py-1 border rounded text-blue-600 hover:bg-blue-50">
