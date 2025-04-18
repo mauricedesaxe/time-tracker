@@ -595,7 +595,7 @@ const TimeTracker = () => {
                     <div className="col-span-2 text-orange-500 font-medium">
                       {monthAbbr} {day}
                     </div>
-                    <div className="col-span-3 flex items-center">
+                    <div className="col-span-4 flex items-center">
                       <svg
                         className="w-4 h-4 mr-1 text-gray-500"
                         viewBox="0 0 24 24"
@@ -614,7 +614,7 @@ const TimeTracker = () => {
                         ( {timeDisplay} )
                       </span>
                     </div>
-                    <div className="col-span-6 flex items-center">
+                    <div className="col-span-5 flex items-center">
                       <div className="mr-2">{getCategoryLabel(categoryId)}</div>
                       <span className="font-medium">{description}</span>
                     </div>
