@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { useStore } from "../store/StoreContext";
-import { TimeEntry } from "../store/timeTrackerStore";
-import { useRows, useCreateRow } from "../hooks/useStore";
+import { useTimeTrackerStore, TimeEntry } from "../store/timeTrackerStore";
 
 /**
  * Convert Unix time duration (in milliseconds) to human readable string
@@ -91,7 +89,9 @@ const getDuration = (start: number, end: number): number => {
 };
 
 const TimeTracker = () => {
-  const store = useStore();
+  const { getTimeEntriesSorted, addTimeEntry, updateTimeEntry, getTimeEntry } =
+    useTimeTrackerStore();
+
   const [description, setDescription] = useState("");
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
   const [timeDisplay, setTimeDisplay] = useState("");
@@ -102,35 +102,28 @@ const TimeTracker = () => {
   const [editEndTime, setEditEndTime] = useState("");
 
   // Get all time entries, sorted by start time (most recent first)
-  const timeEntries = useRows(store, "timeEntries", undefined, {
-    sortKey: "startTime",
-    sortDirection: "desc",
-  }) as unknown as TimeEntry[];
-
-  // Create a new time entry
-  const createTimeEntry = useCreateRow(store, "timeEntries");
+  const sortedEntries = getTimeEntriesSorted("startTime", true);
 
   // Check for running entries when component mounts
   useEffect(() => {
-    const runningEntry = timeEntries.find((entry) => !entry.endTime);
+    const runningEntry = sortedEntries.find((entry) => !entry.endTime);
     if (runningEntry && !currentEntry) {
       setCurrentEntry(runningEntry.id);
       setDescription(runningEntry.description);
       startTimerInterval(runningEntry.startTime);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeEntries]);
+  }, [sortedEntries]);
 
   // Update description when current entry changes
   useEffect(() => {
     if (currentEntry) {
-      const entry = store.getRow(
-        "timeEntries",
-        currentEntry
-      ) as unknown as TimeEntry;
-      setDescription(entry.description);
+      const entry = getTimeEntry(currentEntry);
+      if (entry) {
+        setDescription(entry.description);
+      }
     }
-  }, [currentEntry, store]);
+  }, [currentEntry, getTimeEntry]);
 
   // Clean up timer interval on unmount
   useEffect(() => {
@@ -166,7 +159,7 @@ const TimeTracker = () => {
     const id = `te_${Date.now()}`;
     const startTime = Date.now();
 
-    createTimeEntry(id, {
+    addTimeEntry({
       id,
       description,
       startTime,
@@ -188,10 +181,7 @@ const TimeTracker = () => {
     }
 
     // Update entry with end time
-    store.setRow("timeEntries", currentEntry, {
-      ...store.getRow("timeEntries", currentEntry),
-      endTime: Date.now(),
-    });
+    updateTimeEntry(currentEntry, { endTime: Date.now() });
 
     setCurrentEntry(null);
     setDescription("");
@@ -205,9 +195,11 @@ const TimeTracker = () => {
       stopTimer();
     }
 
-    const entry = store.getRow("timeEntries", entryId) as unknown as TimeEntry;
-    setCurrentEntry(entryId);
-    startTimerInterval(entry.startTime);
+    const entry = getTimeEntry(entryId);
+    if (entry) {
+      setCurrentEntry(entryId);
+      startTimerInterval(entry.startTime);
+    }
   };
 
   // Update description of current entry
@@ -215,10 +207,7 @@ const TimeTracker = () => {
     setDescription(newDescription);
 
     if (currentEntry) {
-      store.setRow("timeEntries", currentEntry, {
-        ...store.getRow("timeEntries", currentEntry),
-        description: newDescription,
-      });
+      updateTimeEntry(currentEntry, { description: newDescription });
     }
   };
 
@@ -257,10 +246,7 @@ const TimeTracker = () => {
     if (!editingEntry) return;
 
     const startTimeMs = new Date(editStartTime).getTime();
-
-    // Handle empty end time case properly
-    const updatedEntry = {
-      ...(store.getRow("timeEntries", editingEntry) as unknown as TimeEntry),
+    const updates: Partial<TimeEntry> = {
       description: editDescription,
       startTime: startTimeMs,
     };
@@ -275,13 +261,13 @@ const TimeTracker = () => {
         return;
       }
 
-      updatedEntry.endTime = endTimeMs;
+      updates.endTime = endTimeMs;
     } else {
-      // Explicitly remove endTime if the field is empty
-      delete updatedEntry.endTime;
+      // We need to explicitly remove endTime
+      updates.endTime = undefined;
     }
 
-    store.setRow("timeEntries", editingEntry, updatedEntry);
+    updateTimeEntry(editingEntry, updates);
     setEditingEntry(null);
   };
 
@@ -340,13 +326,13 @@ const TimeTracker = () => {
       <div className="mt-8">
         <h2 className="text-lg font-semibold mb-4">Time Entries</h2>
 
-        {timeEntries.length === 0 ? (
+        {sortedEntries.length === 0 ? (
           <p className="text-gray-500">
             No time entries yet. Start your first timer!
           </p>
         ) : (
           <div className="space-y-3">
-            {timeEntries.map((entry) => {
+            {sortedEntries.map((entry) => {
               const { id, description, startTime, endTime } = entry;
               const isRunning = !endTime;
               const isCurrentEntry = id === currentEntry;
@@ -413,7 +399,7 @@ const TimeTracker = () => {
                             </span>
                           ) : (
                             <span className="text-gray-500">
-                              {formatDuration(getDuration(startTime, endTime))}
+                              {formatDuration(getDuration(startTime, endTime!))}
                             </span>
                           )}
 
