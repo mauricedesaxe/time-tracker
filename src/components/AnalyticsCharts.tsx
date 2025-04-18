@@ -559,16 +559,15 @@ const AnalyticsCharts = () => {
           {currentWeekData.map((entry, index) => (
             <div
               key={`legend-${index}`}
-              className="flex items-center text-sm p-2 rounded-md bg-gray-100 px-4"
+              className="flex items-center text-sm p-2 rounded-md bg-gray-100 px-4 overflow-hidden"
             >
               <div
-                className="w-4 h-4 p-2 rounded-full"
+                className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
                 style={{
                   backgroundColor: entry.color,
                 }}
               ></div>
-              <span className="font-medium ml-2">{entry.name}</span>
-              <span className="ml-2 text-gray-500">
+              <span className="ml-auto pl-1 whitespace-nowrap text-gray-500 flex-shrink-0">
                 ({entry.hours.toFixed(1)}h)
               </span>
             </div>
