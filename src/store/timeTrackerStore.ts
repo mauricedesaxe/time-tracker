@@ -7,6 +7,7 @@ export interface TimeEntry {
   startTime: number;
   endTime?: number;
   projectId?: string;
+  categoryId?: string;
 }
 
 export interface Project {
@@ -15,9 +16,16 @@ export interface Project {
   color: string;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  color: string;
+}
+
 interface TimeTrackerState {
   timeEntries: Record<string, TimeEntry>;
   projects: Record<string, Project>;
+  categories: Record<string, Category>;
 
   // Actions
   addTimeEntry: (entry: TimeEntry) => void;
@@ -33,6 +41,12 @@ interface TimeTrackerState {
   addProject: (project: Project) => void;
   updateProject: (id: string, project: Partial<Project>) => void;
   getProjects: () => Project[];
+
+  addCategory: (category: Category) => void;
+  updateCategory: (id: string, category: Partial<Category>) => void;
+  deleteCategory: (id: string) => void;
+  getCategories: () => Category[];
+  getCategory: (id: string) => Category | undefined;
 }
 
 export const useTimeTrackerStore = create<TimeTrackerState>()(
@@ -40,6 +54,7 @@ export const useTimeTrackerStore = create<TimeTrackerState>()(
     (set, get) => ({
       timeEntries: {},
       projects: {},
+      categories: {},
 
       addTimeEntry: (entry) =>
         set((state) => ({
@@ -92,6 +107,30 @@ export const useTimeTrackerStore = create<TimeTrackerState>()(
         })),
 
       getProjects: () => Object.values(get().projects),
+
+      addCategory: (category) =>
+        set((state) => ({
+          categories: { ...state.categories, [category.id]: category },
+        })),
+
+      updateCategory: (id, category) =>
+        set((state) => ({
+          categories: {
+            ...state.categories,
+            [id]: { ...state.categories[id], ...category },
+          },
+        })),
+
+      deleteCategory: (id) =>
+        set((state) => {
+          const newCategories = { ...state.categories };
+          delete newCategories[id];
+          return { categories: newCategories };
+        }),
+
+      getCategories: () => Object.values(get().categories),
+
+      getCategory: (id) => get().categories[id],
     }),
     {
       name: "time-tracker-store",
@@ -99,15 +138,30 @@ export const useTimeTrackerStore = create<TimeTrackerState>()(
   )
 );
 
-// Initialize with default project if needed
-export const initDefaultProject = () => {
-  const { projects, addProject } = useTimeTrackerStore.getState();
+// Initialize with default project and category if needed
+export const initTimeTrackerState = () => {
+  const { projects, addProject, categories, addCategory } =
+    useTimeTrackerStore.getState();
 
   if (Object.keys(projects).length === 0) {
     addProject({
       id: "p1",
       name: "Default Project",
       color: "#3b82f6",
+    });
+  }
+
+  if (Object.keys(categories).length === 0) {
+    addCategory({
+      id: "c1",
+      name: "Work",
+      color: "#10b981",
+    });
+
+    addCategory({
+      id: "c2",
+      name: "Personal",
+      color: "#8b5cf6",
     });
   }
 };

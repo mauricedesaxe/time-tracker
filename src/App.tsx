@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import TimeTracker from "./components/TimeTracker";
-import { initDefaultProject } from "./store/timeTrackerStore";
+import { initTimeTrackerState } from "./store/timeTrackerStore";
 import "./App.css";
 
 function App() {
   useEffect(() => {
-    // Initialize with default project if none exists
-    initDefaultProject();
+    initTimeTrackerState();
   }, []);
 
   return (

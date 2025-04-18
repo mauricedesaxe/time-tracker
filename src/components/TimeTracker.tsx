@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { useTimeTrackerStore, TimeEntry } from "../store/timeTrackerStore";
+import {
+  useTimeTrackerStore,
+  TimeEntry,
+  initTimeTrackerState,
+} from "../store/timeTrackerStore";
 
 /**
  * Convert Unix time duration (in milliseconds) to human readable string
@@ -89,12 +93,19 @@ const getDuration = (start: number, end: number): number => {
 };
 
 const TimeTracker = () => {
+  // Initialize default categories and projects on first render
+  useEffect(() => {
+    initTimeTrackerState();
+  }, []);
+
   const {
     getTimeEntriesSorted,
     addTimeEntry,
     updateTimeEntry,
     getTimeEntry,
     deleteTimeEntry,
+    getCategories,
+    getCategory,
   } = useTimeTrackerStore();
 
   const [description, setDescription] = useState("");
@@ -105,9 +116,14 @@ const TimeTracker = () => {
   const [editDescription, setEditDescription] = useState("");
   const [editStartTime, setEditStartTime] = useState("");
   const [editEndTime, setEditEndTime] = useState("");
+  const [categoryId, setCategoryId] = useState<string>("c1"); // Default to first category
+  const [editCategoryId, setEditCategoryId] = useState<string>("");
 
   // Get all time entries, sorted by start time (most recent first)
   const sortedEntries = getTimeEntriesSorted("startTime", true);
+
+  // Get all categories
+  const categories = getCategories();
 
   // Check for running entries when component mounts
   useEffect(() => {
@@ -115,6 +131,7 @@ const TimeTracker = () => {
     if (runningEntry && !currentEntry) {
       setCurrentEntry(runningEntry.id);
       setDescription(runningEntry.description);
+      setCategoryId(runningEntry.categoryId || "c1");
       startTimerInterval(runningEntry.startTime);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,6 +143,7 @@ const TimeTracker = () => {
       const entry = getTimeEntry(currentEntry);
       if (entry) {
         setDescription(entry.description);
+        setCategoryId(entry.categoryId || "c1");
       }
     }
   }, [currentEntry, getTimeEntry]);
@@ -169,6 +187,7 @@ const TimeTracker = () => {
       description,
       startTime,
       projectId: "p1", // Use default project for now
+      categoryId,
     });
 
     setCurrentEntry(id);
@@ -216,10 +235,20 @@ const TimeTracker = () => {
     }
   };
 
+  // Update category of current entry
+  const updateCategory = (newCategoryId: string) => {
+    setCategoryId(newCategoryId);
+
+    if (currentEntry) {
+      updateTimeEntry(currentEntry, { categoryId: newCategoryId });
+    }
+  };
+
   // Toggle entry edit mode
   const startEditingEntry = (entry: TimeEntry) => {
     setEditingEntry(entry.id);
     setEditDescription(entry.description);
+    setEditCategoryId(entry.categoryId || "c1");
 
     // Format timestamps for datetime-local input
     const startDate = new Date(entry.startTime);
@@ -238,6 +267,8 @@ const TimeTracker = () => {
         .toISOString()
         .slice(0, 16);
       setEditEndTime(formattedEnd);
+    } else {
+      setEditEndTime("");
     }
   };
 
@@ -254,6 +285,7 @@ const TimeTracker = () => {
     const updates: Partial<TimeEntry> = {
       description: editDescription,
       startTime: startTimeMs,
+      categoryId: editCategoryId,
     };
 
     // Only set endTime if editEndTime has a value
@@ -301,6 +333,25 @@ const TimeTracker = () => {
     }
   };
 
+  // Get category label
+  const getCategoryLabel = (catId?: string) => {
+    if (!catId) return null;
+    const category = getCategory(catId);
+    if (!category) return null;
+
+    return (
+      <span
+        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+        style={{
+          backgroundColor: `${category.color}20`,
+          color: category.color,
+        }}
+      >
+        {category.name}
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Timer input */}
@@ -313,6 +364,22 @@ const TimeTracker = () => {
           onChange={(e) => updateDescription(e.target.value)}
           onKeyPress={handleDescriptionKeyPress}
         />
+
+        {/* Category selector */}
+        <div className="flex space-x-2">
+          <label className="text-sm text-gray-600">Category:</label>
+          <select
+            value={categoryId}
+            onChange={(e) => updateCategory(e.target.value)}
+            className="text-sm border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="flex items-center space-x-4">
           {!currentEntry ? (
@@ -349,7 +416,7 @@ const TimeTracker = () => {
         ) : (
           <div className="space-y-3">
             {sortedEntries.map((entry) => {
-              const { id, description, startTime, endTime } = entry;
+              const { id, description, startTime, endTime, categoryId } = entry;
               const isRunning = !endTime;
               const isCurrentEntry = id === currentEntry;
               const isEditing = id === editingEntry;
@@ -366,6 +433,22 @@ const TimeTracker = () => {
                         onChange={(e) => setEditDescription(e.target.value)}
                         placeholder="Description"
                       />
+
+                      <div>
+                        <label className="block text-xs mb-1">Category</label>
+                        <select
+                          value={editCategoryId}
+                          onChange={(e) => setEditCategoryId(e.target.value)}
+                          className="w-full px-3 py-2 border rounded"
+                        >
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs mb-1">
@@ -407,7 +490,12 @@ const TimeTracker = () => {
                     // Normal view
                     <>
                       <div className="flex justify-between">
-                        <h3 className="font-medium">{description}</h3>
+                        <div>
+                          <h3 className="font-medium">{description}</h3>
+                          <div className="mt-1">
+                            {getCategoryLabel(categoryId)}
+                          </div>
+                        </div>
                         <div className="flex items-center space-x-2">
                           {isRunning ? (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
