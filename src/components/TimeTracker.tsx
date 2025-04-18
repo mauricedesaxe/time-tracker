@@ -378,29 +378,6 @@ const TimeTracker = () => {
             ))}
           </select>
         </div>
-
-        <div className="flex items-center space-x-4">
-          {!currentEntry ? (
-            <button
-              onClick={startTimer}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
-            >
-              Start Timer
-            </button>
-          ) : (
-            <button
-              onClick={stopTimer}
-              disabled={description.trim() === ""}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50"
-            >
-              Stop Timer
-            </button>
-          )}
-
-          {currentEntry && (
-            <div className="text-lg font-mono">{timeDisplay}</div>
-          )}
-        </div>
       </div>
 
       {/* Time entries list */}
