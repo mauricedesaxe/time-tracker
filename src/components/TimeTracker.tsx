@@ -169,6 +169,43 @@ const TimeTracker = () => {
     };
   }, [timerInterval]);
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle space key
+      if (e.code !== "Space") return;
+
+      // Don't trigger if in an input, textarea or modal is open
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement ||
+        isModalOpen ||
+        editingEntry
+      ) {
+        return;
+      }
+
+      // Prevent default space behavior (page scroll)
+      e.preventDefault();
+
+      // Toggle timer
+      if (currentEntry) {
+        stopTimer();
+      } else {
+        startTimer();
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Clean up
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentEntry, isModalOpen, editingEntry]);
+
   // Start timer interval for displaying elapsed time
   const startTimerInterval = (startTime: number) => {
     // Clear any existing interval
