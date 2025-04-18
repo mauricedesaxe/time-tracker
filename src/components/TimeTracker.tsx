@@ -82,16 +82,6 @@ function formatDuration(
   return short ? parts.join(" ") : parts.join(", ");
 }
 
-// Format date in readable format
-const formatDate = (timestamp: number): string => {
-  return new Date(timestamp).toLocaleString();
-};
-
-// Calculate duration in milliseconds
-const getDuration = (start: number, end: number): number => {
-  return end - start;
-};
-
 const TimeTracker = () => {
   // Initialize default categories and projects on first render
   useEffect(() => {
@@ -415,24 +405,123 @@ const TimeTracker = () => {
 
       {/* Time entries list */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-4">Time Entries</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <div className="text-2xl flex items-center">
+              <svg
+                className="w-6 h-6 mr-2"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                <path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <span className="font-semibold">Tracked time</span>
+            </div>
+          </div>
+          <div className="flex space-x-2">
+            <button className="flex items-center px-3 py-1 border rounded text-blue-600 hover:bg-blue-50">
+              <svg
+                className="w-4 h-4 mr-1"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M19 9l-7 7-7-7"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Export
+            </button>
+            <button
+              onClick={startTimer}
+              disabled={!!currentEntry}
+              className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M12 5v14M5 12h14"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              New
+            </button>
+          </div>
+        </div>
+
+        <div className="text-sm mb-4">
+          Showing tracked time in{" "}
+          <a href="#" className="text-blue-500 hover:underline">
+            All categories
+          </a>
+        </div>
 
         {sortedEntries.length === 0 ? (
           <p className="text-gray-500">
             No time entries yet. Start your first timer!
           </p>
         ) : (
-          <div className="space-y-3">
-            {sortedEntries.map((entry) => {
-              const { id, description, startTime, endTime, categoryId } = entry;
-              const isRunning = !endTime;
-              const isCurrentEntry = id === currentEntry;
-              const isEditing = id === editingEntry;
+          <>
+            <div className="grid grid-cols-12 gap-4 py-2 border-b text-gray-500 font-medium text-sm">
+              <div className="col-span-2">DATE</div>
+              <div className="col-span-3">TIME</div>
+              <div className="col-span-7">DETAILS</div>
+            </div>
 
-              return (
-                <div key={id} className="p-4 border rounded-lg bg-gray-50">
-                  {isEditing ? (
-                    // Edit form
+            <div className="space-y-1 mt-2">
+              {sortedEntries.map((entry) => {
+                const { id, description, startTime, endTime, categoryId } =
+                  entry;
+                const isRunning = !endTime;
+                const isCurrentEntry = id === currentEntry;
+                const isEditing = id === editingEntry;
+
+                // Format date as APR 18
+                const date = new Date(startTime);
+                const monthAbbr = date
+                  .toLocaleString("en", { month: "short" })
+                  .toUpperCase();
+                const day = date.getDate();
+
+                // Format time as 4:33pm - 4:39pm
+                const startTimeStr = new Date(startTime).toLocaleTimeString(
+                  "en-US",
+                  {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  }
+                );
+
+                const endTimeStr = endTime
+                  ? new Date(endTime).toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    })
+                  : "";
+
+                const timeDisplay = isRunning
+                  ? `${startTimeStr} - running`
+                  : `${startTimeStr} - ${endTimeStr}`;
+
+                const durationMinutes = isRunning
+                  ? Math.round((Date.now() - startTime) / 60000)
+                  : Math.round((endTime! - startTime) / 60000);
+
+                return isEditing ? (
+                  <div key={id} className="p-4 border rounded-lg bg-gray-50">
+                    {/* Edit form stays the same */}
                     <div className="space-y-3">
                       <input
                         type="text"
@@ -494,65 +583,110 @@ const TimeTracker = () => {
                         </button>
                       </div>
                     </div>
-                  ) : (
-                    // Normal view
-                    <>
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="font-medium">{description}</h3>
-                          <div className="mt-1">
-                            {getCategoryLabel(categoryId)}
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {isRunning ? (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Running
-                            </span>
-                          ) : (
-                            <span className="text-gray-500">
-                              {formatDuration(getDuration(startTime, endTime!))}
-                            </span>
-                          )}
-
-                          {isRunning && !isCurrentEntry && (
-                            <button
-                              onClick={() => resumeTimer(id)}
-                              className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                              Resume
-                            </button>
-                          )}
-
-                          {!isRunning && (
-                            <button
-                              onClick={() => startEditingEntry(entry)}
-                              className="ml-2 px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                            >
-                              Edit
-                            </button>
-                          )}
-
-                          <button
-                            onClick={() => handleDeleteEntry(id)}
-                            className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
-                            aria-label="Delete entry"
-                            title="Delete entry"
+                  </div>
+                ) : (
+                  <div
+                    key={id}
+                    className="grid grid-cols-12 gap-4 py-3 border-b hover:bg-gray-50"
+                  >
+                    <div className="col-span-2 text-orange-500 font-medium">
+                      {monthAbbr} {day}
+                    </div>
+                    <div className="col-span-3 flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-1 text-gray-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                        <path
+                          d="M12 6v6l4 2"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <span className="font-medium">{durationMinutes} min</span>
+                      <span className="text-xs text-gray-500 ml-1">
+                        ( {timeDisplay} )
+                      </span>
+                    </div>
+                    <div className="col-span-6 flex items-center">
+                      <div className="mr-2">{getCategoryLabel(categoryId)}</div>
+                      <span className="font-medium">{description}</span>
+                    </div>
+                    <div className="col-span-1 flex justify-end items-center space-x-1">
+                      {isRunning && !isCurrentEntry && (
+                        <button
+                          onClick={() => resumeTimer(id)}
+                          className="p-1 text-blue-500 hover:bg-blue-100 rounded"
+                          title="Resume"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
                           >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                      <div className="mt-1 text-sm text-gray-500">
-                        Started: {formatDate(startTime)}
-                        {endTime && ` • Ended: ${formatDate(endTime)}`}
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                            <path
+                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                              fill="currentColor"
+                            />
+                            <path
+                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              strokeWidth="2"
+                            />
+                          </svg>
+                        </button>
+                      )}
+
+                      {!isRunning && (
+                        <button
+                          onClick={() => startEditingEntry(entry)}
+                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                          title="Edit"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                          >
+                            <path
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => handleDeleteEntry(id)}
+                        className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                        title="Delete"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>
