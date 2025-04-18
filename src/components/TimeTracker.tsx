@@ -206,6 +206,21 @@ const TimeTracker = () => {
     };
   }, [currentEntry, isModalOpen, editingEntry]);
 
+  // Add Escape key handler for modal
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (!isModalOpen) return;
+      if (e.key === "Escape") {
+        cancelModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscapeKey);
+    return () => {
+      window.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [isModalOpen]);
+
   // Start timer interval for displaying elapsed time
   const startTimerInterval = (startTime: number) => {
     // Clear any existing interval
