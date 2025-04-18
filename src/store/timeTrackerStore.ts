@@ -1,4 +1,5 @@
 import { createStore } from "tinybase";
+import { createLocalPersister } from "tinybase/persisters/persister-browser";
 
 export interface TimeEntry {
   id: string;
@@ -33,3 +34,16 @@ export const createTimeTrackerStore = () => {
 };
 
 export const timeTrackerStore = createTimeTrackerStore();
+
+export const initPersistence = async () => {
+  const persister = createLocalPersister(
+    timeTrackerStore,
+    "time-tracker-store"
+  );
+
+  await persister.startAutoLoad();
+
+  await persister.startAutoSave();
+
+  return persister;
+};

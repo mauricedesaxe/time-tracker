@@ -1,11 +1,15 @@
 import { useEffect } from "react";
 import { StoreProvider } from "./store/StoreContext";
-import { timeTrackerStore } from "./store/timeTrackerStore";
+import { timeTrackerStore, initPersistence } from "./store/timeTrackerStore";
 import TimeTracker from "./components/TimeTracker";
 import "./App.css";
 
 function App() {
   useEffect(() => {
+    // Initialize persistence
+    initPersistence();
+
+    // Add default project if none exists
     if (Object.keys(timeTrackerStore.getTable("projects")).length === 0) {
       timeTrackerStore.setRow("projects", "p1", {
         id: "p1",
