@@ -573,7 +573,9 @@ const TimeTracker = () => {
                       </span>
                     </div>
                     <div className="col-span-5 flex items-center">
-                      <div className="mr-2">{getCategoryLabel(categoryId)}</div>
+                      <div className="mr-2">
+                        {getCategoryLabel(isRunning ? "running" : categoryId)}
+                      </div>
                       <span className="font-medium">{description}</span>
                     </div>
                     <div className="col-span-1 flex justify-end items-center space-x-1">

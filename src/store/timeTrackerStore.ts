@@ -130,7 +130,10 @@ export const useTimeTrackerStore = create<TimeTrackerState>()(
 
       getCategories: () => Object.values(get().categories),
 
-      getCategory: (id) => get().categories[id],
+      getCategory: (id) =>
+        id === "running"
+          ? { id: "running", name: "Tracker is running", color: "#000000" }
+          : get().categories[id],
     }),
     {
       name: "time-tracker-store",
