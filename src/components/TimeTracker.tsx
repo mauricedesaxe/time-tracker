@@ -53,6 +53,21 @@ const TimeTracker = () => {
   // Add new state for prune options dropdown
   const [showPruneOptions, setShowPruneOptions] = useState(false);
 
+  // Ensure only one dropdown is open at a time
+  useEffect(() => {
+    if (showExportOptions && showPruneOptions) {
+      setShowPruneOptions(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showExportOptions]);
+
+  useEffect(() => {
+    if (showPruneOptions && showExportOptions) {
+      setShowExportOptions(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPruneOptions]);
+
   // Get all time entries, sorted by start time (most recent first)
   const sortedEntries = getTimeEntriesSorted("startTime", true);
 
