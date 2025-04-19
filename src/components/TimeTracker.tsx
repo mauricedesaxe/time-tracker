@@ -878,7 +878,7 @@ const TimeTracker = () => {
                   className="cursor-pointer px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancel{" "}
-                  <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-600 dark:bg-gray-700 rounded-md opacity-80">
+                  <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-300 dark:bg-gray-700 rounded-md opacity-80">
                     Esc
                   </span>
                 </button>
