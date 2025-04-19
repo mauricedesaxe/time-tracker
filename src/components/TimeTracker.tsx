@@ -113,6 +113,8 @@ const TimeTracker = () => {
     getCategory,
     getTimeEntries,
     exportTimeEntries,
+    pruneAllTimeEntries,
+    pruneOldTimeEntries,
   } = useTimeTrackerStore();
 
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
@@ -133,6 +135,9 @@ const TimeTracker = () => {
 
   // Export formats dropdown state
   const [showExportOptions, setShowExportOptions] = useState(false);
+
+  // Add new state for prune options dropdown
+  const [showPruneOptions, setShowPruneOptions] = useState(false);
 
   // Get all time entries, sorted by start time (most recent first)
   const sortedEntries = getTimeEntriesSorted("startTime", true);
@@ -480,6 +485,39 @@ const TimeTracker = () => {
     setShowExportOptions(false);
   };
 
+  // Add new handler methods for pruning
+  const handlePruneAll = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete ALL time entries? This cannot be undone."
+      )
+    ) {
+      // If there's a running timer, stop it first
+      if (currentEntry) {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          setTimerInterval(null);
+        }
+        setCurrentEntry(null);
+      }
+
+      pruneAllTimeEntries();
+      setShowPruneOptions(false);
+    }
+  };
+
+  const handlePruneOld = () => {
+    const days = 90; // 90 days
+    if (
+      window.confirm(
+        `Are you sure you want to delete all time entries older than ${days} days? This cannot be undone.`
+      )
+    ) {
+      pruneOldTimeEntries(days);
+      setShowPruneOptions(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Time entries list */}
@@ -505,6 +543,49 @@ const TimeTracker = () => {
             )}
           </div>
           <div className="flex space-x-2">
+            {/* Prune options */}
+            <div className="relative">
+              <button
+                onClick={() => setShowPruneOptions(!showPruneOptions)}
+                className="cursor-pointer flex items-center px-3 py-1 border dark:border-gray-600 rounded text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Prune
+              </button>
+
+              {showPruneOptions && (
+                <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={handlePruneOld}
+                      className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Older than 90 days
+                    </button>
+                    <button
+                      onClick={handlePruneAll}
+                      className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                    >
+                      All time entries
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Export options */}
             <div className="relative">
               <button
                 onClick={() => setShowExportOptions(!showExportOptions)}
@@ -545,6 +626,7 @@ const TimeTracker = () => {
                 </div>
               )}
             </div>
+
             {!currentEntry ? (
               <button
                 onClick={startTimer}

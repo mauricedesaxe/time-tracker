@@ -49,6 +49,8 @@ interface TimeTrackerState {
   getCategory: (id: string) => Category | undefined;
 
   exportTimeEntries: (format: "csv" | "json") => string;
+  pruneAllTimeEntries: () => void;
+  pruneOldTimeEntries: (olderThanDays: number) => void;
 }
 
 export const useTimeTrackerStore = create<TimeTrackerState>()(
@@ -181,6 +183,22 @@ export const useTimeTrackerStore = create<TimeTrackerState>()(
           return header + rows;
         }
       },
+
+      pruneAllTimeEntries: () => set({ timeEntries: {} }),
+
+      pruneOldTimeEntries: (olderThanDays) =>
+        set((state) => {
+          const cutoffTime = Date.now() - olderThanDays * 24 * 60 * 60 * 1000;
+          const newTimeEntries = { ...state.timeEntries };
+
+          Object.entries(newTimeEntries).forEach(([id, entry]) => {
+            if (entry.startTime < cutoffTime) {
+              delete newTimeEntries[id];
+            }
+          });
+
+          return { timeEntries: newTimeEntries };
+        }),
     }),
     {
       name: "time-tracker-store",
