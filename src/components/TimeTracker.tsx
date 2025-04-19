@@ -206,6 +206,7 @@ const TimeTracker = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentEntry, isModalOpen, editingEntry]);
 
   // Add Escape key handler for modal
@@ -221,6 +222,7 @@ const TimeTracker = () => {
     return () => {
       window.removeEventListener("keydown", handleEscapeKey);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isModalOpen]);
 
   // Start timer interval for displaying elapsed time
