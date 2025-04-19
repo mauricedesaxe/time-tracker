@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   BarChart,
   Bar,
@@ -294,10 +294,20 @@ const getWorkTypeColor = (workTypeId: string): string => {
 const AnalyticsCharts = () => {
   const { getTimeEntriesSorted, getCategories, getCategory } =
     useTimeTrackerStore();
-  const entries = getTimeEntriesSorted("startTime", true).filter(
-    (entry) => !!entry.endTime
+
+  // Memoize these values to prevent re-renders
+  const entries = useMemo(
+    () =>
+      getTimeEntriesSorted("startTime", true).filter(
+        (entry) => !!entry.endTime
+      ),
+    [getTimeEntriesSorted]
   );
-  const categories = getCategories();
+
+  const categories = useMemo(() => getCategories(), [getCategories]);
+
+  // Memoize the getCategory function to maintain stable reference
+  const stableGetCategory = useCallback(getCategory, [getCategory]);
 
   // State for chart data
   const [currentWeekData, setCurrentWeekData] = useState<PieChartData[]>([]);
@@ -345,7 +355,7 @@ const AnalyticsCharts = () => {
     // Format data for pie chart
     const pieChartData = Object.entries(categoryHours).map(
       ([categoryId, hours]) => {
-        const category = getCategory(categoryId);
+        const category = stableGetCategory(categoryId);
         return {
           name: category?.name || "Uncategorized",
           value: hours,
@@ -432,7 +442,7 @@ const AnalyticsCharts = () => {
 
         // Add hours for each category
         Object.entries(categoryData).forEach(([categoryId, hours]) => {
-          const category = getCategory(categoryId);
+          const category = stableGetCategory(categoryId);
           dataPoint[categoryId] = hours;
           dataPoint[`${categoryId}_name`] = category?.name || "Uncategorized";
           dataPoint.total += hours;
@@ -516,7 +526,7 @@ const AnalyticsCharts = () => {
     const workTypeChartData = Object.entries(workTypeHours)
       .filter(([, data]) => Object.values(data).some((hours) => hours > 0))
       .map(([categoryId, typeData]) => {
-        const category = getCategory(categoryId);
+        const category = stableGetCategory(categoryId);
         const result: WorkTypeData = {
           category: category?.name || "Uncategorized",
           categoryId,
@@ -531,7 +541,7 @@ const AnalyticsCharts = () => {
       });
 
     setWorkTypeData(workTypeChartData);
-  }, [entries, getCategory, categories]);
+  }, [entries, stableGetCategory, categories]);
 
   // If no data, show a placeholder
   if (entries.length === 0) {
