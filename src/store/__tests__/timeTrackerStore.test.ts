@@ -1,4 +1,5 @@
 import { useTimeTrackerStore, initTimeTrackerState } from "../timeTrackerStore";
+import { TimeEntry } from "../timeTrackerStore";
 
 // Clear store between tests
 beforeEach(() => {
@@ -244,5 +245,184 @@ describe("Time Tracker Store", () => {
     const remainingEntries = getTimeEntries();
     expect(remainingEntries).toHaveLength(1);
     expect(remainingEntries[0].id).toBe("recent");
+  });
+
+  // FUZZ TESTS
+  describe("Fuzz Tests", () => {
+    // Helper function to generate random time entries
+    function generateRandomTimeEntry(id: string) {
+      const startTime =
+        Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000);
+      const duration = Math.floor(Math.random() * 8 * 60 * 60 * 1000); // Random duration up to 8 hours
+
+      return {
+        id,
+        description: `Random entry ${id}`,
+        startTime,
+        endTime: Math.random() > 0.2 ? startTime + duration : undefined, // 20% chance to be running
+        categoryId: Math.random() > 0.5 ? "c1" : "c2",
+      };
+    }
+
+    test("handles bulk operations with many random entries", () => {
+      const {
+        addTimeEntry,
+        getTimeEntries,
+        getTimeEntriesSorted,
+        pruneOldTimeEntries,
+      } = useTimeTrackerStore.getState();
+
+      // Add default categories
+      initTimeTrackerState();
+
+      // Add 100 random time entries, but ensure they're all older than 3 days
+      const entryCount = 100;
+      for (let i = 0; i < entryCount; i++) {
+        const entry = generateRandomTimeEntry(`fuzz_${i}`);
+        // Force all entries to be at least 3 days old
+        entry.startTime = Date.now() - (3 * 24 * 60 * 60 * 1000 + i * 1000);
+        addTimeEntry(entry);
+      }
+
+      const allEntries = getTimeEntries();
+      expect(allEntries.length).toBe(entryCount);
+
+      // Test sorting
+      const sortedAsc = getTimeEntriesSorted("startTime", false);
+      expect(sortedAsc.length).toBe(entryCount);
+      for (let i = 1; i < sortedAsc.length; i++) {
+        expect(sortedAsc[i].startTime).toBeGreaterThanOrEqual(
+          sortedAsc[i - 1].startTime
+        );
+      }
+
+      const sortedDesc = getTimeEntriesSorted("startTime", true);
+      expect(sortedDesc.length).toBe(entryCount);
+      for (let i = 1; i < sortedDesc.length; i++) {
+        expect(sortedDesc[i].startTime).toBeLessThanOrEqual(
+          sortedDesc[i - 1].startTime
+        );
+      }
+
+      // Test pruning
+      const veryRecentTime = Date.now() - 1 * 24 * 60 * 60 * 1000; // 1 day ago
+      addTimeEntry({
+        id: "recent_entry",
+        description: "Very recent entry",
+        startTime: veryRecentTime,
+        categoryId: "c1",
+      });
+
+      // Prune entries older than 2 days
+      pruneOldTimeEntries(2);
+
+      const remainingEntries = getTimeEntries();
+      // Should only have the very recent entry left
+      expect(remainingEntries.length).toBe(1);
+      expect(remainingEntries[0].id).toBe("recent_entry");
+    });
+
+    test("handles fuzzy descriptions with special characters", () => {
+      const { addTimeEntry, getTimeEntry, exportTimeEntries } =
+        useTimeTrackerStore.getState();
+
+      // Add entry with special characters
+      const specialChars = [
+        "Test with \n newlines",
+        'Test with "quotes"',
+        "Test with ,commas,",
+        "Test with <html> tags",
+        "Test with emoji 😀 🚀",
+        "Test with Unicode characters Ñáéíóú",
+        "Test with SQL injection'; DROP TABLE users;--",
+      ];
+
+      // Add each special character entry
+      specialChars.forEach((desc, index) => {
+        addTimeEntry({
+          id: `special_${index}`,
+          description: desc,
+          startTime: Date.now(),
+          endTime: Date.now() + 3600000,
+        });
+
+        // Verify retrieval works
+        const entry = getTimeEntry(`special_${index}`);
+        expect(entry?.description).toBe(desc);
+      });
+
+      // Test export with special characters
+      const jsonExport = exportTimeEntries("json");
+      const parsed = JSON.parse(jsonExport);
+
+      // Verify all descriptions are in the export
+      specialChars.forEach((desc) => {
+        const found = parsed.some(
+          (entry: TimeEntry) => entry.description === desc
+        );
+        expect(found).toBe(true);
+      });
+
+      // Check CSV export (which is more prone to formatting issues)
+      const csvExport = exportTimeEntries("csv");
+
+      // CSV should properly escape quotes by doubling them
+      expect(csvExport).toContain('Test with ""quotes""');
+    });
+
+    test("maintains data integrity with rapid sequential operations", () => {
+      const {
+        addTimeEntry,
+        updateTimeEntry,
+        deleteTimeEntry,
+
+        getTimeEntry,
+      } = useTimeTrackerStore.getState();
+
+      // Create and immediately update the same entry multiple times
+      for (let i = 0; i < 50; i++) {
+        const id = `rapid_${i}`;
+
+        // Add
+        addTimeEntry({
+          id,
+          description: "Initial",
+          startTime: Date.now(),
+        });
+
+        // Update several times in succession
+        updateTimeEntry(id, { description: "Update 1" });
+        updateTimeEntry(id, { description: "Update 2" });
+        updateTimeEntry(id, { description: "Update 3" });
+        updateTimeEntry(id, { categoryId: "c1" });
+        updateTimeEntry(id, { endTime: Date.now() + 1000 });
+
+        // Final state should reflect all updates
+        const entry = getTimeEntry(id);
+        expect(entry?.description).toBe("Update 3");
+        expect(entry?.categoryId).toBe("c1");
+        expect(entry?.endTime).toBeDefined();
+      }
+
+      // Test rapid add/delete cycles
+      for (let i = 0; i < 50; i++) {
+        const id = `temp_${i}`;
+
+        addTimeEntry({
+          id,
+          description: "Temporary entry",
+          startTime: Date.now(),
+        });
+
+        // Verify it exists
+        expect(getTimeEntry(id)).toBeDefined();
+
+        // Delete it
+        deleteTimeEntry(id);
+
+        // Verify it's gone
+        expect(getTimeEntry(id)).toBeUndefined();
+      }
+    });
   });
 });
