@@ -2964,6 +2964,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"daisyui@npm:latest":
+  version: 5.0.27
+  resolution: "daisyui@npm:5.0.27"
+  checksum: 3f0db9a587f5cf08d6c76247dea317452c1aaa93acdc089511cbbff6a229b7f0f23690022bd6e89570ffc88669810824319b41a078c59dba96637f10daa5e27d
+  languageName: node
+  linkType: hard
+
 "data-urls@npm:^3.0.2":
   version: 3.0.2
   resolution: "data-urls@npm:3.0.2"
@@ -6428,6 +6435,7 @@ __metadata:
     "@types/react-datepicker": ^7.0.0
     "@types/react-dom": ^19.0.4
     "@vitejs/plugin-react": ^4.3.4
+    daisyui: latest
     dotenv: ^16.5.0
     eslint: ^9.22.0
     eslint-plugin-react-hooks: ^5.2.0

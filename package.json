@@ -15,6 +15,7 @@
     "@sentry/react": "^9.13.0",
     "@tailwindcss/vite": "^4.1.4",
     "@types/react-datepicker": "^7.0.0",
+    "daisyui": "latest",
     "fuse.js": "^7.1.0",
     "react": "^19.0.0",
     "react-datepicker": "^8.3.0",
