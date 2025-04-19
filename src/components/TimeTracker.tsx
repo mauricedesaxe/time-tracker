@@ -611,7 +611,7 @@ const TimeTracker = () => {
                 className="whitespace-nowrap cursor-pointer flex items-center px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 gap-2"
               >
                 Start Timer
-                <kbd className="kbd kbd-sm text-gray-700 dark:text-gray-400">
+                <kbd className="kbd kbd-sm dark:bg-gray-800 text-gray-700 dark:text-gray-400">
                   Space
                 </kbd>
               </button>
@@ -621,7 +621,7 @@ const TimeTracker = () => {
                 className="whitespace-nowrap cursor-pointer flex items-center px-3 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50 gap-2"
               >
                 Stop Timer
-                <kbd className="kbd kbd-sm text-gray-700 dark:text-gray-400">
+                <kbd className="kbd kbd-sm dark:bg-gray-800 text-gray-700 dark:text-gray-400">
                   Space
                 </kbd>
               </button>
