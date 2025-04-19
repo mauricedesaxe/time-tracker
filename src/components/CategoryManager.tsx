@@ -89,7 +89,7 @@ const CategoryManager = () => {
             setNewName("");
             setNewColor("#10b981");
           }}
-          className="text-sm bg-blue-500 dark:bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+          className="cursor-pointer text-sm bg-blue-500 dark:bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-600 dark:hover:bg-blue-700"
         >
           {showAddForm ? "Cancel" : "Add Category"}
         </button>
@@ -141,7 +141,7 @@ const CategoryManager = () => {
                 onClick={
                   editingCategoryId ? handleUpdateCategory : handleAddCategory
                 }
-                className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+                className="cursor-pointer px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
               >
                 {editingCategoryId ? "Update" : "Add"}
               </button>
@@ -175,7 +175,7 @@ const CategoryManager = () => {
               <div className="flex space-x-1">
                 <button
                   onClick={() => startEdit(category)}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                  className="cursor-pointer p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                   title="Edit"
                 >
                   <svg
@@ -195,7 +195,7 @@ const CategoryManager = () => {
 
                 <button
                   onClick={() => handleDeleteCategory(category.id)}
-                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                  className="cursor-pointer p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                   title="Delete"
                 >
                   <svg

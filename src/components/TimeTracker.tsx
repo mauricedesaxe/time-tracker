@@ -549,7 +549,7 @@ const TimeTracker = () => {
               <button
                 onClick={startTimer}
                 disabled={!!currentEntry}
-                className="flex items-center px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
+                className="cursor-pointer flex items-center px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
               >
                 Start Timer
                 <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-600 dark:bg-blue-700 rounded-md opacity-80">
@@ -559,7 +559,7 @@ const TimeTracker = () => {
             ) : (
               <button
                 onClick={stopTimer}
-                className="flex items-center px-3 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50"
+                className="cursor-pointer flex items-center px-3 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50"
               >
                 Stop Timer
                 <span className="ml-2 px-1.5 py-0.5 text-xs bg-red-600 dark:bg-red-700 rounded-md opacity-80">
@@ -694,13 +694,13 @@ const TimeTracker = () => {
                       <div className="flex justify-end space-x-2">
                         <button
                           onClick={cancelEdit}
-                          className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300"
+                          className="cursor-pointer px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={saveEdit}
-                          className="px-3 py-1 text-sm bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+                          className="cursor-pointer px-3 py-1 text-sm bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
                         >
                           Save
                         </button>
@@ -744,7 +744,7 @@ const TimeTracker = () => {
                       {isRunning && !isCurrentEntry && (
                         <button
                           onClick={() => resumeTimer(id)}
-                          className="p-1 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded"
+                          className="cursor-pointer p-1 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded"
                           title="Resume"
                         >
                           <svg
@@ -768,7 +768,7 @@ const TimeTracker = () => {
                       {!isRunning && (
                         <button
                           onClick={() => startEditingEntry(entry)}
-                          className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                          className="cursor-pointer p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                           title="Edit"
                         >
                           <svg
@@ -789,7 +789,7 @@ const TimeTracker = () => {
 
                       <button
                         onClick={() => handleDeleteEntry(id)}
-                        className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                        className="cursor-pointer p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                         title="Delete"
                       >
                         <svg
@@ -875,7 +875,7 @@ const TimeTracker = () => {
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   onClick={cancelModal}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="cursor-pointer px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancel{" "}
                   <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-600 dark:bg-gray-700 rounded-md opacity-80">
@@ -884,7 +884,7 @@ const TimeTracker = () => {
                 </button>
                 <button
                   onClick={saveEntryFromModal}
-                  className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
+                  className="cursor-pointer px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
                   disabled={modalDescription.trim() === ""}
                 >
                   Save
