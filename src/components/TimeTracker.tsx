@@ -44,7 +44,7 @@ const TimeTracker = () => {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalDescription, setModalDescription] = useState("");
-  const [modalCategoryId, setModalCategoryId] = useState<string>("c1");
+  const [modalCategoryId, setModalCategoryId] = useState<string>("c1"); // Default to first category
   const [entryToSave, setEntryToSave] = useState<string | null>(null);
 
   // Export formats dropdown state
@@ -63,6 +63,26 @@ const TimeTracker = () => {
 
   // Get all categories
   const categories = getCategories();
+
+  // Initialize modal category when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0) {
+      // Ensure a valid category ID is selected (prefer first category)
+      if (!categories.some((cat) => cat.id === modalCategoryId)) {
+        setModalCategoryId(categories[0].id);
+      }
+    }
+  }, [categories, modalCategoryId]);
+
+  // Effect to handle modal opening
+  useEffect(() => {
+    if (isModalOpen && categories.length > 0) {
+      // If current modalCategoryId is not valid, set to first category
+      if (!categories.some((cat) => cat.id === modalCategoryId)) {
+        setModalCategoryId(categories[0].id);
+      }
+    }
+  }, [isModalOpen, categories, modalCategoryId]);
 
   // Check for running entries when component mounts
   useEffect(() => {
@@ -208,7 +228,9 @@ const TimeTracker = () => {
     const entry = getTimeEntry(currentEntry);
     if (entry) {
       setModalDescription(entry.description || "");
-      setModalCategoryId(entry.categoryId || "c1");
+      setModalCategoryId(
+        entry.categoryId || (categories.length > 0 ? categories[0].id : "c1")
+      );
       setEntryToSave(currentEntry);
 
       // Open the modal
