@@ -53,6 +53,32 @@ const TimeTracker = () => {
   // Add new state for prune options dropdown
   const [showPruneOptions, setShowPruneOptions] = useState(false);
 
+  // Store original title for restoration
+  const [originalTitle, setOriginalTitle] = useState("");
+
+  // Set up document title effect
+  useEffect(() => {
+    // Store original title on first mount
+    if (!originalTitle) {
+      setOriginalTitle(document.title || "Time Tracker");
+    }
+
+    // Update document title when timer is running
+    if (currentEntry && timeDisplay) {
+      document.title = `🔴 ${timeDisplay} - Time Tracker`;
+    } else if (originalTitle) {
+      // Restore original title when not tracking
+      document.title = originalTitle;
+    }
+
+    // Cleanup function to restore original title when component unmounts
+    return () => {
+      if (originalTitle) {
+        document.title = originalTitle;
+      }
+    };
+  }, [currentEntry, timeDisplay, originalTitle]);
+
   // Ensure only one dropdown is open at a time
   useEffect(() => {
     if (showExportOptions && showPruneOptions) {
