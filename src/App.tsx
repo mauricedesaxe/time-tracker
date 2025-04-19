@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import TimeTracker from "./components/TimeTracker";
 import { initTimeTrackerState } from "./store/timeTrackerStore";
-import "./App.css";
 import CategoryManager from "./components/CategoryManager";
 import AnalyticsCharts from "./components/AnalyticsCharts";
 
