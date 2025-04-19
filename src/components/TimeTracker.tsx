@@ -112,6 +112,7 @@ const TimeTracker = () => {
     getCategories,
     getCategory,
     getTimeEntries,
+    exportTimeEntries,
   } = useTimeTrackerStore();
 
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
@@ -129,6 +130,9 @@ const TimeTracker = () => {
   const [modalDescription, setModalDescription] = useState("");
   const [modalCategoryId, setModalCategoryId] = useState<string>("c1");
   const [entryToSave, setEntryToSave] = useState<string | null>(null);
+
+  // Export formats dropdown state
+  const [showExportOptions, setShowExportOptions] = useState(false);
 
   // Get all time entries, sorted by start time (most recent first)
   const sortedEntries = getTimeEntriesSorted("startTime", true);
@@ -451,6 +455,31 @@ const TimeTracker = () => {
     );
   };
 
+  // Handle exporting time entries
+  const handleExport = (format: "csv" | "json") => {
+    const exported = exportTimeEntries(format);
+    const fileType = format === "csv" ? "text/csv" : "application/json";
+    const fileName = `time-tracker-export-${new Date()
+      .toISOString()
+      .slice(0, 10)}.${format}`;
+
+    // Create a Blob and download link
+    const blob = new Blob([exported], { type: fileType });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary link and trigger download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setShowExportOptions(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Time entries list */}
@@ -476,22 +505,46 @@ const TimeTracker = () => {
             )}
           </div>
           <div className="flex space-x-2">
-            <button className="flex items-center px-3 py-1 border dark:border-gray-600 rounded text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700">
-              <svg
-                className="w-4 h-4 mr-1"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
+            <div className="relative">
+              <button
+                onClick={() => setShowExportOptions(!showExportOptions)}
+                className="cursor-pointer flex items-center px-3 py-1 border dark:border-gray-600 rounded text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700"
               >
-                <path
-                  d="M19 9l-7 7-7-7"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Export
-            </button>
+                <svg
+                  className="w-4 h-4 mr-1"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Export
+              </button>
+
+              {showExportOptions && (
+                <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleExport("csv")}
+                      className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      CSV
+                    </button>
+                    <button
+                      onClick={() => handleExport("json")}
+                      className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      JSON
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             {!currentEntry ? (
               <button
                 onClick={startTimer}

@@ -47,6 +47,8 @@ interface TimeTrackerState {
   deleteCategory: (id: string) => void;
   getCategories: () => Category[];
   getCategory: (id: string) => Category | undefined;
+
+  exportTimeEntries: (format: "csv" | "json") => string;
 }
 
 export const useTimeTrackerStore = create<TimeTrackerState>()(
@@ -134,6 +136,51 @@ export const useTimeTrackerStore = create<TimeTrackerState>()(
         id === "running"
           ? { id: "running", name: "Tracker is running", color: "#000000" }
           : get().categories[id],
+
+      exportTimeEntries: (format) => {
+        const { timeEntries } = get();
+        const entries = Object.values(timeEntries);
+
+        const sortedEntries = entries.sort((a, b) => b.startTime - a.startTime);
+
+        if (format === "json") {
+          const exportData = sortedEntries.map((entry) => {
+            const category = entry.categoryId
+              ? get().categories[entry.categoryId]
+              : null;
+            return {
+              ...entry,
+              category: category ? category.name : null,
+            };
+          });
+
+          return JSON.stringify(exportData, null, 2);
+        } else {
+          const header = "Date,Start Time,End Time,Category,Description\n";
+
+          const rows = sortedEntries
+            .map((entry) => {
+              const startDate = new Date(entry.startTime);
+              const endDate = entry.endTime ? new Date(entry.endTime) : null;
+
+              const date = startDate.toISOString().split("T")[0];
+              const startTimeStr = startDate.toISOString();
+              const endTimeStr = endDate ? endDate.toISOString() : "";
+
+              const category = entry.categoryId
+                ? get().categories[entry.categoryId]
+                : null;
+              const categoryName = category ? category.name : "";
+
+              const safeDescription = entry.description.replace(/"/g, '""');
+
+              return `${date},${startTimeStr},${endTimeStr},${categoryName},"${safeDescription}"`;
+            })
+            .join("\n");
+
+          return header + rows;
+        }
+      },
     }),
     {
       name: "time-tracker-store",
