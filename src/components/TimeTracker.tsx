@@ -567,22 +567,22 @@ const TimeTracker = () => {
               <button
                 onClick={startTimer}
                 disabled={!!currentEntry}
-                className="whitespace-nowrap cursor-pointer flex items-center px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50"
+                className="whitespace-nowrap cursor-pointer flex items-center px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 gap-2"
               >
                 Start Timer
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-600 dark:bg-blue-700 rounded-md opacity-80">
+                <kbd className="kbd kbd-sm text-gray-700 dark:text-gray-400">
                   Space
-                </span>
+                </kbd>
               </button>
             ) : (
               <button
                 onClick={stopTimer}
-                className="whitespace-nowrap cursor-pointer flex items-center px-3 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50"
+                className="whitespace-nowrap cursor-pointer flex items-center px-3 py-1 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50 gap-2"
               >
                 Stop Timer
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-red-600 dark:bg-red-700 rounded-md opacity-80">
+                <kbd className="kbd kbd-sm text-gray-700 dark:text-gray-400">
                   Space
-                </span>
+                </kbd>
               </button>
             )}
           </div>
@@ -893,12 +893,12 @@ const TimeTracker = () => {
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   onClick={cancelModal}
-                  className="cursor-pointer px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="cursor-pointer px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 gap-2"
                 >
                   Cancel{" "}
-                  <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-300 dark:bg-gray-700 rounded-md opacity-80">
+                  <kbd className="kbd kbd-sm text-gray-700 dark:text-gray-400">
                     Esc
-                  </span>
+                  </kbd>
                 </button>
                 <button
                   onClick={saveEntryFromModal}
