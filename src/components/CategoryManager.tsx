@@ -89,7 +89,7 @@ const CategoryManager = () => {
             setNewName("");
             setNewColor("#10b981");
           }}
-          className="cursor-pointer text-sm bg-blue-500 dark:bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+          className="cursor-pointer flex items-center text-sm px-3 py-1 border dark:border-gray-600 rounded text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700"
         >
           {showAddForm ? "Cancel" : "Add Category"}
         </button>
