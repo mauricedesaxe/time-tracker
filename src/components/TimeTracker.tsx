@@ -537,7 +537,7 @@ const TimeTracker = () => {
               <span className="font-semibold">Tracked time</span>
             </div>
             {currentEntry && (
-              <div className="text-lg font-mono text-blue-600 dark:text-blue-400">
+              <div className="text-lg font-mono text-blue-600 dark:text-blue-400 truncate max-w-xs">
                 Elapsed: {timeDisplay}
               </div>
             )}
