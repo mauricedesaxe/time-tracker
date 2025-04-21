@@ -292,7 +292,7 @@ const getWorkTypeColor = (workTypeId: string): string => {
 };
 
 const AnalyticsCharts = () => {
-  const { getTimeEntriesSorted, getCategories, getCategory } =
+  const { getTimeEntriesSorted, getCategories, getCategory, timeEntries } =
     useTimeTrackerStore();
 
   // Memoize these values to prevent re-renders
@@ -301,7 +301,8 @@ const AnalyticsCharts = () => {
       getTimeEntriesSorted("startTime", true).filter(
         (entry) => !!entry.endTime
       ),
-    [getTimeEntriesSorted]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [getTimeEntriesSorted, timeEntries]
   );
 
   const categories = useMemo(() => getCategories(), [getCategories]);
