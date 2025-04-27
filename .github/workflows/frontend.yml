@@ -1,4 +1,4 @@
-name: CI
+name: Frontend CI
 
 on:
   push:
@@ -21,7 +21,9 @@ jobs:
         run: corepack enable
           
       - name: Install dependencies
+        working-directory: ./frontend
         run: yarn install
         
       - name: Run tests
+        working-directory: ./frontend
         run: yarn test 
