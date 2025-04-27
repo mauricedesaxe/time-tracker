@@ -1,0 +1,8 @@
+{
+    "rust-analyzer.cargo.allFeatures": true,
+    "rust-analyzer.checkOnSave.command": "check",
+    "rust-analyzer.linkedProjects": ["./backend/Cargo.toml"],
+    "rust-analyzer.diagnostics.disabled": ["macro-error"],
+    "rust-analyzer.procMacro.enable": false,
+    "rust-analyzer.cargo.buildScripts.enable": false
+}
