@@ -568,25 +568,30 @@ const AnalyticsCharts = () => {
         </p>
 
         {/* Category Summary Legend */}
-        <div className="mb-6 grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {currentWeekData.map((entry, index) => (
             <div
               key={`legend-${index}`}
-              className="flex items-center text-sm p-2 rounded-md bg-gray-100 dark:bg-gray-700 px-4 overflow-hidden"
+              className="flex items-center justify-between text-sm p-3 rounded-md bg-gray-100 dark:bg-gray-700"
             >
-              <div
-                className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
-                style={{
-                  backgroundColor: entry.color,
-                }}
-              ></div>
-              <span className="ml-auto pl-1 whitespace-nowrap text-gray-500 dark:text-gray-400 flex-shrink-0">
+              <div className="flex items-center min-w-0 flex-1 pr-2">
+                <div
+                  className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                  style={{
+                    backgroundColor: entry.color,
+                  }}
+                ></div>
+                <span className="text-gray-700 dark:text-gray-200 truncate">
+                  {entry.name}
+                </span>
+              </div>
+              <span className="text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2 font-mono text-xs">
                 {(() => {
                   const category = stableGetCategory(entry.categoryId);
                   const targetHours = category?.weeklyTargetHours;
                   return targetHours
-                    ? `(${entry.hours.toFixed(1)}h / ${targetHours}h)`
-                    : `(${entry.hours.toFixed(1)}h)`;
+                    ? `${entry.hours.toFixed(1)}h / ${targetHours}h`
+                    : `${entry.hours.toFixed(1)}h`;
                 })()}
               </span>
             </div>
