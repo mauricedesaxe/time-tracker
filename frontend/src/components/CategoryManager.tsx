@@ -8,16 +8,20 @@ const CategoryManager = () => {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
-    null
+    null,
   );
 
   const [newName, setNewName] = useState("");
   const [newColor, setNewColor] = useState("#10b981");
+  const [newWeeklyTargetHours, setNewWeeklyTargetHours] = useState<number | "">(
+    0,
+  );
 
   // Reset form state
   const resetForm = () => {
     setNewName("");
     setNewColor("#10b981");
+    setNewWeeklyTargetHours(0);
     setShowAddForm(false);
     setEditingCategoryId(null);
   };
@@ -27,6 +31,7 @@ const CategoryManager = () => {
     setEditingCategoryId(category.id);
     setNewName(category.name);
     setNewColor(category.color);
+    setNewWeeklyTargetHours(category.weeklyTargetHours || 0);
     setShowAddForm(false);
   };
 
@@ -42,6 +47,8 @@ const CategoryManager = () => {
       id,
       name: newName,
       color: newColor,
+      weeklyTargetHours:
+        typeof newWeeklyTargetHours === "number" ? newWeeklyTargetHours : 0,
     });
 
     resetForm();
@@ -58,6 +65,8 @@ const CategoryManager = () => {
     updateCategory(editingCategoryId, {
       name: newName,
       color: newColor,
+      weeklyTargetHours:
+        typeof newWeeklyTargetHours === "number" ? newWeeklyTargetHours : 0,
     });
 
     resetForm();
@@ -67,7 +76,7 @@ const CategoryManager = () => {
   const handleDeleteCategory = (id: string) => {
     // Get entries that use this category
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this category? Any time entries using this category will be affected."
+      "Are you sure you want to delete this category? Any time entries using this category will be affected.",
     );
 
     if (confirmDelete) {
@@ -88,6 +97,7 @@ const CategoryManager = () => {
             setShowAddForm(!showAddForm);
             setNewName("");
             setNewColor("#10b981");
+            setNewWeeklyTargetHours(0);
           }}
           className="cursor-pointer flex items-center text-sm px-3 py-1 border dark:border-gray-600 rounded text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700"
         >
@@ -136,6 +146,25 @@ const CategoryManager = () => {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Weekly Target Hours
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={newWeeklyTargetHours}
+                onChange={(e) =>
+                  setNewWeeklyTargetHours(
+                    e.target.value === "" ? "" : Number(e.target.value),
+                  )
+                }
+                className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                placeholder="0"
+              />
+            </div>
+
             <div className="flex justify-end pt-2">
               <button
                 onClick={
@@ -167,9 +196,14 @@ const CategoryManager = () => {
                   className="w-4 h-4 rounded-full mr-3"
                   style={{ backgroundColor: category.color }}
                 ></div>
-                <span className="font-medium dark:text-white">
-                  {category.name}
-                </span>
+                <div className="flex flex-col">
+                  <span className="font-medium dark:text-white">
+                    {category.name}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Target: {category.weeklyTargetHours || "N/A "}h/week
+                  </span>
+                </div>
               </div>
 
               <div className="flex space-x-1">

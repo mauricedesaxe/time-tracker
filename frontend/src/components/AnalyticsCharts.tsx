@@ -194,7 +194,7 @@ const WORK_TYPE_DEFINITIONS = [
 
 // Create a collection of all terms for fuzzy matching
 const allTerms = WORK_TYPE_DEFINITIONS.flatMap((type) =>
-  type.terms.map((term) => ({ term, typeId: type.id }))
+  type.terms.map((term) => ({ term, typeId: type.id })),
 );
 
 // Initialize Fuse instance
@@ -299,10 +299,10 @@ const AnalyticsCharts = () => {
   const entries = useMemo(
     () =>
       getTimeEntriesSorted("startTime", true).filter(
-        (entry) => !!entry.endTime
+        (entry) => !!entry.endTime,
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getTimeEntriesSorted, timeEntries]
+    [getTimeEntriesSorted, timeEntries],
   );
 
   const categories = useMemo(() => getCategories(), [getCategories]);
@@ -334,7 +334,7 @@ const AnalyticsCharts = () => {
 
     // Get entries from current week
     const currentWeekEntries = completedEntries.filter(
-      (entry) => new Date(entry.startTime) >= startOfWeek
+      (entry) => new Date(entry.startTime) >= startOfWeek,
     );
 
     // Calculate total hours for current week
@@ -364,7 +364,7 @@ const AnalyticsCharts = () => {
           categoryId,
           hours,
         };
-      }
+      },
     );
 
     setCurrentWeekData(pieChartData);
@@ -375,7 +375,7 @@ const AnalyticsCharts = () => {
     sixWeeksAgo.setDate(sixWeeksAgo.getDate() - 42); // 6 weeks ago
 
     const weeklyEntries = completedEntries.filter(
-      (entry) => new Date(entry.startTime) >= sixWeeksAgo
+      (entry) => new Date(entry.startTime) >= sixWeeksAgo,
     );
 
     // Group by week and category
@@ -405,7 +405,7 @@ const AnalyticsCharts = () => {
     sixDaysAgo.setHours(0, 0, 0, 0);
 
     const recentEntries = completedEntries.filter(
-      (entry) => new Date(entry.startTime) >= sixDaysAgo
+      (entry) => new Date(entry.startTime) >= sixDaysAgo,
     );
 
     // Group by day and category
@@ -581,7 +581,13 @@ const AnalyticsCharts = () => {
                 }}
               ></div>
               <span className="ml-auto pl-1 whitespace-nowrap text-gray-500 dark:text-gray-400 flex-shrink-0">
-                ({entry.hours.toFixed(1)}h)
+                {(() => {
+                  const category = stableGetCategory(entry.categoryId);
+                  const targetHours = category?.weeklyTargetHours;
+                  return targetHours
+                    ? `(${entry.hours.toFixed(1)}h / ${targetHours}h)`
+                    : `(${entry.hours.toFixed(1)}h)`;
+                })()}
               </span>
             </div>
           ))}

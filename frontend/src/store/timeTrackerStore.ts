@@ -20,6 +20,7 @@ export interface Category {
   id: string;
   name: string;
   color: string;
+  weeklyTargetHours?: number;
 }
 
 interface TimeTrackerState {
@@ -224,12 +225,14 @@ export const initTimeTrackerState = () => {
       id: "c1",
       name: "Work",
       color: "#10b981",
+      weeklyTargetHours: 40,
     });
 
     addCategory({
       id: "c2",
       name: "Personal",
       color: "#8b5cf6",
+      weeklyTargetHours: 10,
     });
   }
 };
