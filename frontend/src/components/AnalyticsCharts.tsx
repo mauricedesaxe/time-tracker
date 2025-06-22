@@ -329,7 +329,9 @@ const AnalyticsCharts = () => {
     // Get current date and start of current week
     const now = new Date();
     const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay()); // Start from Sunday
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday start
+    startOfWeek.setDate(diff);
     startOfWeek.setHours(0, 0, 0, 0);
 
     // Get entries from current week
