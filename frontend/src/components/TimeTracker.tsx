@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import {
   useTimeTrackerStore,
   TimeEntry,
+  Category,
   initTimeTrackerState,
 } from "../store/timeTrackerStore";
 import {
@@ -103,7 +104,9 @@ const TimeTracker = () => {
   }, [sortedEntries]);
 
   // Get all categories
-  const categories = getCategories();
+  const categories = getCategories().sort((a: Category, b: Category) =>
+    a.name.localeCompare(b.name),
+  );
 
   // Initialize modal category when categories are loaded
   useEffect(() => {
@@ -236,7 +239,7 @@ const TimeTracker = () => {
     const runningEntries = entries.filter((entry) => !entry.endTime);
     if (runningEntries.length > 0) {
       throw new Error(
-        "Cannot start a new timer while another timer is already running."
+        "Cannot start a new timer while another timer is already running.",
       );
     }
 
@@ -270,7 +273,7 @@ const TimeTracker = () => {
     if (entry) {
       setModalDescription(entry.description || "");
       setModalCategoryId(
-        entry.categoryId || (categories.length > 0 ? categories[0].id : "c1")
+        entry.categoryId || (categories.length > 0 ? categories[0].id : "c1"),
       );
       setEntryToSave(currentEntry);
 
@@ -466,7 +469,7 @@ const TimeTracker = () => {
   const handlePruneAll = () => {
     if (
       window.confirm(
-        "Are you sure you want to delete ALL time entries? This cannot be undone."
+        "Are you sure you want to delete ALL time entries? This cannot be undone.",
       )
     ) {
       // If there's a running timer, stop it first
@@ -487,7 +490,7 @@ const TimeTracker = () => {
     const days = 90; // 90 days
     if (
       window.confirm(
-        `Are you sure you want to delete all time entries older than ${days} days? This cannot be undone.`
+        `Are you sure you want to delete all time entries older than ${days} days? This cannot be undone.`,
       )
     ) {
       pruneOldTimeEntries(days);
@@ -663,7 +666,7 @@ const TimeTracker = () => {
                     hour: "numeric",
                     minute: "2-digit",
                     hour12: true,
-                  }
+                  },
                 );
 
                 const endTimeStr = endTime

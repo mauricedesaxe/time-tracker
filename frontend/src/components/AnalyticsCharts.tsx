@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useTimeTrackerStore } from "../store/timeTrackerStore";
+import { useTimeTrackerStore, Category } from "../store/timeTrackerStore";
 import Fuse from "fuse.js";
 
 // Define interfaces for chart data
@@ -305,7 +305,13 @@ const AnalyticsCharts = () => {
     [getTimeEntriesSorted, timeEntries],
   );
 
-  const categories = useMemo(() => getCategories(), [getCategories]);
+  const categories = useMemo(
+    () =>
+      getCategories().sort((a: Category, b: Category) =>
+        a.name.localeCompare(b.name),
+      ),
+    [getCategories],
+  );
 
   // Memoize the getCategory function to maintain stable reference
   const stableGetCategory = useCallback(getCategory, [getCategory]);

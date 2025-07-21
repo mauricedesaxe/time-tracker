@@ -4,7 +4,9 @@ import { useTimeTrackerStore, Category } from "../store/timeTrackerStore";
 const CategoryManager = () => {
   const { getCategories, addCategory, updateCategory, deleteCategory } =
     useTimeTrackerStore();
-  const categories = getCategories();
+  const categories = getCategories().sort((a: Category, b: Category) =>
+    a.name.localeCompare(b.name),
+  );
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
